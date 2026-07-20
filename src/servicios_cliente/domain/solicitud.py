@@ -56,6 +56,22 @@ class SolicitudServicio:
         self.evidencia_foto_url = foto_url.strip()
         self.estado = EstadoSolicitud.EJECUTADA
 
+    def dar_conformidad(self, aprobado: bool, observacion: str) -> None:
+        if self.estado != EstadoSolicitud.EJECUTADA:
+            raise ErrorDominio(f"No se puede registrar conformidad para una solicitud en estado {self.estado.value}.")
+        self.conformidad_aprobado = aprobado
+        self.conformidad_observacion = observacion.strip() if observacion else None
+        if aprobado:
+            self.estado = EstadoSolicitud.CONFORME
+
+    def facturar(self, comprobante: str) -> None:
+        if self.estado != EstadoSolicitud.CONFORME:
+            raise ErrorDominio(f"No se puede facturar una solicitud en estado {self.estado.value}.")
+        if not comprobante or not comprobante.strip():
+            raise ErrorDominio("El código de comprobante es obligatorio.")
+        self.comprobante = comprobante.strip()
+
+
 
 class SolicitudFabrica:
     @staticmethod
