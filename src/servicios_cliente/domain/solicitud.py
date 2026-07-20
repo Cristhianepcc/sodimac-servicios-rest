@@ -26,6 +26,13 @@ class SolicitudServicio:
     tipo_servicio: str
     direccion: str
     estado: EstadoSolicitud = EstadoSolicitud.REGISTRADA
+    tecnico: str | None = None
+    fecha: str | None = None
+    evidencia_descripcion: str | None = None
+    evidencia_foto_url: str | None = None
+    conformidad_aprobado: bool | None = None
+    conformidad_observacion: str | None = None
+    comprobante: str | None = None
 
 
 class SolicitudFabrica:
