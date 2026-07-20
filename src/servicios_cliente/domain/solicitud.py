@@ -34,6 +34,28 @@ class SolicitudServicio:
     conformidad_observacion: str | None = None
     comprobante: str | None = None
 
+    def programar(self, tecnico: str, fecha: str) -> None:
+        if self.estado != EstadoSolicitud.REGISTRADA:
+            raise ErrorDominio(f"No se puede programar una solicitud en estado {self.estado.value}.")
+        if not tecnico or not tecnico.strip():
+            raise ErrorDominio("El técnico es obligatorio para la programación.")
+        if not fecha or not fecha.strip():
+            raise ErrorDominio("La fecha es obligatoria para la programación.")
+        self.tecnico = tecnico.strip()
+        self.fecha = fecha.strip()
+        self.estado = EstadoSolicitud.PROGRAMADA
+
+    def ejecutar(self, descripcion: str, foto_url: str) -> None:
+        if self.estado != EstadoSolicitud.PROGRAMADA:
+            raise ErrorDominio(f"No se puede registrar ejecución para una solicitud en estado {self.estado.value}.")
+        if not descripcion or not descripcion.strip():
+            raise ErrorDominio("La descripción de la evidencia es obligatoria.")
+        if not foto_url or not foto_url.strip():
+            raise ErrorDominio("La URL de la foto de evidencia es obligatoria.")
+        self.evidencia_descripcion = descripcion.strip()
+        self.evidencia_foto_url = foto_url.strip()
+        self.estado = EstadoSolicitud.EJECUTADA
+
 
 class SolicitudFabrica:
     @staticmethod
