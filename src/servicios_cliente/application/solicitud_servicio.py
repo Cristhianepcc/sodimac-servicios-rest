@@ -35,3 +35,16 @@ class SolicitudAppServicio:
         solicitud.ejecutar(descripcion, foto_url)
         self._repo.adicionar(solicitud)
         return solicitud
+
+    def dar_conformidad(self, solicitud_id: str, aprobado: bool, observacion: str) -> SolicitudServicio:
+        solicitud = self.obtener(solicitud_id)
+        solicitud.dar_conformidad(aprobado, observacion)
+        self._repo.adicionar(solicitud)
+        return solicitud
+
+    def facturar(self, solicitud_id: str, comprobante: str) -> SolicitudServicio:
+        solicitud = self.obtener(solicitud_id)
+        solicitud.facturar(comprobante)
+        self._repo.adicionar(solicitud)
+        return solicitud
+
