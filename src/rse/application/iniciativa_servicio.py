@@ -1,7 +1,14 @@
-"""Servicio de aplicación de Iniciativas RSE (casos de uso)."""
+"""Servicio de aplicación de Iniciativas RSE (casos de uso del proceso completo)."""
 from __future__ import annotations
 
-from src.rse.domain.iniciativa import IniciativaFabrica, IniciativaRSE
+from datetime import date
+
+from src.rse.domain.iniciativa import (
+    EvidenciaAvance,
+    IndicadorKPI,
+    IniciativaFabrica,
+    IniciativaRSE,
+)
 from src.rse.infrastructure import get_iniciativa_repositorio
 from src.shared.errores import NoEncontrado
 
@@ -9,6 +16,8 @@ from src.shared.errores import NoEncontrado
 class IniciativaServicio:
     def __init__(self, repositorio=None) -> None:
         self._repo = repositorio or get_iniciativa_repositorio()
+
+    # --- Formulación / consulta ---
 
     def crear(
         self,
@@ -32,3 +41,43 @@ class IniciativaServicio:
 
     def listar(self) -> list[IniciativaRSE]:
         return self._repo.listar()
+
+    # --- Ciclo del proceso BPM ---
+
+    def evaluar(self, codigo: str, aprobada: bool, presupuesto_aprobado: float,
+                comentario: str = "") -> IniciativaRSE:
+        iniciativa = self.obtener(codigo)
+        iniciativa.evaluar(aprobada, presupuesto_aprobado, comentario)
+        self._repo.actualizar(iniciativa)
+        return iniciativa
+
+    def agregar_indicador(self, codigo: str, nombre: str, unidad: str,
+                          valor_linea_base: float = 0.0, valor_actual: float = 0.0,
+                          meta: float = 0.0) -> IniciativaRSE:
+        iniciativa = self.obtener(codigo)
+        iniciativa.agregar_indicador(
+            IndicadorKPI(nombre, unidad, valor_linea_base, valor_actual, meta)
+        )
+        self._repo.actualizar(iniciativa)
+        return iniciativa
+
+    def registrar_evidencia(self, codigo: str, descripcion: str,
+                            porcentaje_avance: float, archivo_url: str = "") -> IniciativaRSE:
+        iniciativa = self.obtener(codigo)
+        iniciativa.registrar_evidencia(
+            EvidenciaAvance(date.today(), descripcion, porcentaje_avance, archivo_url)
+        )
+        self._repo.actualizar(iniciativa)
+        return iniciativa
+
+    def generar_reporte(self, codigo: str, resumen: str = "") -> IniciativaRSE:
+        iniciativa = self.obtener(codigo)
+        iniciativa.generar_reporte(resumen)
+        self._repo.actualizar(iniciativa)
+        return iniciativa
+
+    def aprobar_publicacion(self, codigo: str, url_publicacion: str) -> IniciativaRSE:
+        iniciativa = self.obtener(codigo)
+        iniciativa.aprobar_publicacion(url_publicacion)
+        self._repo.actualizar(iniciativa)
+        return iniciativa
