@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Variables de entorno / secretos
+.env
+
+# Base de datos local
+*.db
+*.sqlite3
+
+# Herramientas / IDE
+.idea/
+.vscode/
+*.log
+
+# Sistema
+.DS_Store
