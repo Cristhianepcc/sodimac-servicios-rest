@@ -23,3 +23,15 @@ class SolicitudAppServicio:
 
     def listar(self) -> list[SolicitudServicio]:
         return self._repo.listar()
+
+    def programar(self, solicitud_id: str, tecnico: str, fecha: str) -> SolicitudServicio:
+        solicitud = self.obtener(solicitud_id)
+        solicitud.programar(tecnico, fecha)
+        self._repo.adicionar(solicitud)
+        return solicitud
+
+    def ejecutar(self, solicitud_id: str, descripcion: str, foto_url: str) -> SolicitudServicio:
+        solicitud = self.obtener(solicitud_id)
+        solicitud.ejecutar(descripcion, foto_url)
+        self._repo.adicionar(solicitud)
+        return solicitud
