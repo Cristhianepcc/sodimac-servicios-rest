@@ -21,6 +21,13 @@ def _serializar(s: SolicitudServicio) -> dict:
         "tipoServicio": s.tipo_servicio,
         "direccion": s.direccion,
         "estado": s.estado.value,
+        "tecnico": s.tecnico,
+        "fecha": s.fecha,
+        "evidenciaDescripcion": s.evidencia_descripcion,
+        "evidenciaFotoUrl": s.evidencia_foto_url,
+        "conformidadAprobado": s.conformidad_aprobado,
+        "conformidadObservacion": s.conformidad_observacion,
+        "comprobante": s.comprobante,
     }
 
 
@@ -43,3 +50,25 @@ def obtener_solicitud(solicitud_id: str):
 @bp.get("")
 def listar_solicitudes():
     return jsonify([_serializar(s) for s in SolicitudAppServicio().listar()]), 200
+
+
+@bp.post("/<solicitud_id>/programacion")
+def programar_solicitud(solicitud_id: str):
+    d = request.get_json(silent=True) or {}
+    s = SolicitudAppServicio().programar(
+        solicitud_id=solicitud_id,
+        tecnico=d.get("tecnico", ""),
+        fecha=d.get("fecha", ""),
+    )
+    return jsonify(_serializar(s)), 200
+
+
+@bp.post("/<solicitud_id>/ejecucion")
+def registrar_ejecucion(solicitud_id: str):
+    d = request.get_json(silent=True) or {}
+    s = SolicitudAppServicio().ejecutar(
+        solicitud_id=solicitud_id,
+        descripcion=d.get("descripcion", ""),
+        foto_url=d.get("fotoUrl", ""),
+    )
+    return jsonify(_serializar(s)), 200
