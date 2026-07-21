@@ -157,7 +157,8 @@
                 "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
                 "var j = pm.response.json();",
                 "pm.test('Tiene id', function () { pm.expect(j).to.have.property('id'); });",
-                "pm.test('Estado REGISTRADA', function () { pm.expect(j.estado).to.eql('REGISTRADA'); });"
+                "pm.test('Estado REGISTRADA', function () { pm.expect(j.estado).to.eql('REGISTRADA'); });",
+                "pm.collectionVariables.set('servicios_cliente_solicitud_id', j.id);"
               ] }
             }
           ],
@@ -166,6 +167,113 @@
             "header": [ { "key": "Content-Type", "value": "application/json" } ],
             "body": { "mode": "raw", "raw": "{\n  \"cliente\": \"C-2\",\n  \"tipoServicio\": \"Instalacion de pisos\",\n  \"direccion\": \"Av Siempre Viva 123\"\n}" },
             "url": { "raw": "{{project_host}}/api/solicitudes", "host": [ "{{project_host}}" ], "path": [ "api", "solicitudes" ] }
+          }
+        },
+        {
+          "name": "Programar solicitud",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": { "type": "text/javascript", "exec": [
+                "// GIVEN: una solicitud registrada"
+              ] }
+            },
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": [
+                "// THEN: el estado es PROGRAMADA",
+                "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                "var j = pm.response.json();",
+                "pm.test('Estado PROGRAMADA', function () { pm.expect(j.estado).to.eql('PROGRAMADA'); });",
+                "pm.test('Técnico asignado', function () { pm.expect(j.tecnico).to.eql('T-01'); });"
+              ] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"tecnico\": \"T-01\",\n  \"fecha\": \"2026-08-01\"\n}" },
+            "url": { "raw": "{{project_host}}/api/solicitudes/{{servicios_cliente_solicitud_id}}/programacion", "host": [ "{{project_host}}" ], "path": [ "api", "solicitudes", "{{servicios_cliente_solicitud_id}}", "programacion" ] }
+          }
+        },
+        {
+          "name": "Registrar ejecucion",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": { "type": "text/javascript", "exec": [
+                "// GIVEN: una solicitud programada"
+              ] }
+            },
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": [
+                "// THEN: el estado es EJECUTADA",
+                "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                "var j = pm.response.json();",
+                "pm.test('Estado EJECUTADA', function () { pm.expect(j.estado).to.eql('EJECUTADA'); });",
+                "pm.test('Foto de evidencia guardada', function () { pm.expect(j.evidenciaFotoUrl).to.not.be.null; });"
+              ] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"descripcion\": \"Trabajo completado\",\n  \"fotoUrl\": \"https://sodimac.com/evidencias/SOL-1.jpg\"\n}" },
+            "url": { "raw": "{{project_host}}/api/solicitudes/{{servicios_cliente_solicitud_id}}/ejecucion", "host": [ "{{project_host}}" ], "path": [ "api", "solicitudes", "{{servicios_cliente_solicitud_id}}", "ejecucion" ] }
+          }
+        },
+        {
+          "name": "Evaluar conformidad",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": { "type": "text/javascript", "exec": [
+                "// GIVEN: una solicitud ejecutada"
+              ] }
+            },
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": [
+                "// THEN: el estado es CONFORME",
+                "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                "var j = pm.response.json();",
+                "pm.test('Estado CONFORME', function () { pm.expect(j.estado).to.eql('CONFORME'); });",
+                "pm.test('Conformidad aprobada', function () { pm.expect(j.conformidadAprobado).to.be.true; });"
+              ] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"aprobado\": true,\n  \"observacion\": \"Servicio excelente\"\n}" },
+            "url": { "raw": "{{project_host}}/api/solicitudes/{{servicios_cliente_solicitud_id}}/conformidad", "host": [ "{{project_host}}" ], "path": [ "api", "solicitudes", "{{servicios_cliente_solicitud_id}}", "conformidad" ] }
+          }
+        },
+        {
+          "name": "Generar facturacion",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": { "type": "text/javascript", "exec": [
+                "// GIVEN: una solicitud conforme"
+              ] }
+            },
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": [
+                "// THEN: el comprobante se genera y se mantiene el estado CONFORME",
+                "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                "var j = pm.response.json();",
+                "pm.test('Comprobante emitido', function () { pm.expect(j.comprobante).to.eql('FACT-001'); });"
+              ] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"comprobante\": \"FACT-001\"\n}" },
+            "url": { "raw": "{{project_host}}/api/solicitudes/{{servicios_cliente_solicitud_id}}/facturacion", "host": [ "{{project_host}}" ], "path": [ "api", "solicitudes", "{{servicios_cliente_solicitud_id}}", "facturacion" ] }
           }
         }
       ]
