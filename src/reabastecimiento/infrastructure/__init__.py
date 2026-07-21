@@ -8,8 +8,10 @@ from __future__ import annotations
 
 from config import Config
 from src.reabastecimiento.domain.inventario import IProductoRepositorio
+from src.reabastecimiento.domain.proveedor import IProveedorRepositorio
 
 _repo_inventario: IProductoRepositorio | None = None
+_repo_proveedor: IProveedorRepositorio | None = None
 
 
 def get_inventario_repositorio() -> IProductoRepositorio:
@@ -24,3 +26,17 @@ def get_inventario_repositorio() -> IProductoRepositorio:
 
             _repo_inventario = ProductoRepositorioMemoria()
     return _repo_inventario
+
+
+def get_proveedor_repositorio() -> IProveedorRepositorio:
+    global _repo_proveedor
+    if _repo_proveedor is None:
+        if Config.REPO_BACKEND == "sqlalchemy":
+            from .proveedor_sqlalchemy import ProveedorRepositorioSQLAlchemy
+
+            _repo_proveedor = ProveedorRepositorioSQLAlchemy()
+        else:
+            from .proveedor_memoria import ProveedorRepositorioMemoria
+
+            _repo_proveedor = ProveedorRepositorioMemoria()
+    return _repo_proveedor
