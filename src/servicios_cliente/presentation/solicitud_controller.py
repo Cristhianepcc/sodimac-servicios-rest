@@ -72,3 +72,25 @@ def registrar_ejecucion(solicitud_id: str):
         foto_url=d.get("fotoUrl", ""),
     )
     return jsonify(_serializar(s)), 200
+
+
+@bp.post("/<solicitud_id>/conformidad")
+def evaluar_conformidad(solicitud_id: str):
+    d = request.get_json(silent=True) or {}
+    s = SolicitudAppServicio().dar_conformidad(
+        solicitud_id=solicitud_id,
+        aprobado=d.get("aprobado", False),
+        observacion=d.get("observacion", ""),
+    )
+    return jsonify(_serializar(s)), 200
+
+
+@bp.post("/<solicitud_id>/facturacion")
+def generar_comprobante(solicitud_id: str):
+    d = request.get_json(silent=True) or {}
+    s = SolicitudAppServicio().facturar(
+        solicitud_id=solicitud_id,
+        comprobante=d.get("comprobante", ""),
+    )
+    return jsonify(_serializar(s)), 200
+
