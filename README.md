@@ -42,6 +42,17 @@ REPO_BACKEND=sqlalchemy python run.py
   Pull Request a `develop`.
 - Buenas prácticas de commit: mensajes descriptivos (*clean code*).
 
+## Pruebas unitarias
+
+Prueban el **dominio** (invariantes del proceso) y los **servicios de aplicación**
+con repositorios en memoria (dobles/Fakes), sin base de datos ni HTTP. La estructura
+de `tests/` refleja la de `src/`.
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
 ## Pruebas de aceptación (BDD)
 
 Colección Postman en [`Pruebas de API/`](Pruebas%20de%20API/). Cada request sigue
