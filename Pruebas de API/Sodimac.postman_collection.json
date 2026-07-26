@@ -1,13 +1,12 @@
 {
   "info": {
+    "_postman_id": "f215aea3-508f-4b50-b429-4d82195c72d6",
     "name": "Sodimac - Servicios REST (BDD)",
     "description": "Pruebas de aceptacion (API) del Lab 7. Una carpeta por proceso de negocio. Cada request sigue el enfoque BDD: GIVEN (Pre-request), WHEN (Send), THEN (Post-response / Tests). Los 5 requests de referencia deben PASAR; los servicios en stub responderan 501 hasta que cada integrante los implemente.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "56422698",
+    "_collection_link": "https://go.postman.co/collection/56422698-f215aea3-508f-4b50-b429-4d82195c72d6?source=collection_link"
   },
-  "variable": [
-    { "key": "project_host", "value": "http://localhost:5000" },
-    { "key": "ventas_carrito_id", "value": "" }
-  ],
   "item": [
     {
       "name": "Ventas (Omnicanal)",
@@ -17,57 +16,100 @@
           "event": [
             {
               "listen": "prerequest",
-              "script": { "type": "text/javascript", "exec": [
-                "// GIVEN: el endpoint de creacion de carrito y un cliente con un item"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GIVEN: el endpoint de creacion de carrito y un cliente con un item"
+                ]
+              }
             },
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "// THEN: se crea el carrito (201) con id y total calculado",
-                "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
-                "var j = pm.response.json();",
-                "pm.test('Tiene id de carrito', function () {",
-                "  pm.expect(j).to.have.property('id');",
-                "  pm.collectionVariables.set('ventas_carrito_id', j.id);",
-                "});",
-                "pm.test('Total = 100', function () { pm.expect(j.total).to.eql(100); });",
-                "pm.test('Response time < 5s', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// THEN: se crea el carrito (201) con id y total calculado",
+                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                  "var j = pm.response.json();",
+                  "pm.test('Tiene id de carrito', function () {",
+                  "  pm.expect(j).to.have.property('id');",
+                  "  pm.collectionVariables.set('ventas_carrito_id', j.id);",
+                  "});",
+                  "pm.test('Total = 100', function () { pm.expect(j.total).to.eql(100); });",
+                  "pm.test('Response time < 5s', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/json" } ],
-            "body": { "mode": "raw", "raw": "{\n  \"cliente\": \"C-1\",\n  \"items\": [ { \"sku\": \"SKU1\", \"cantidad\": 2, \"precio_unitario\": 50 } ]\n}" },
-            "url": { "raw": "{{project_host}}/api/ventas/carrito", "host": [ "{{project_host}}" ], "path": [ "api", "ventas", "carrito" ] }
-          }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cliente\": \"C-1\",\n  \"items\": [ { \"sku\": \"SKU1\", \"cantidad\": 2, \"precio_unitario\": 50 } ]\n}"
+            },
+            "url": {
+              "raw": "{{project_host}}/api/ventas/carrito",
+              "host": [
+                "{{project_host}}"
+              ],
+              "path": [
+                "api",
+                "ventas",
+                "carrito"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Consultar carrito",
           "event": [
             {
               "listen": "prerequest",
-              "script": { "type": "text/javascript", "exec": [
-                "// GIVEN: un carrito creado previamente (ventas_carrito_id)"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GIVEN: un carrito creado previamente (ventas_carrito_id)"
+                ]
+              }
             },
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "// THEN: devuelve el carrito (200) con el mismo id",
-                "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                "pm.test('Id coincide', function () {",
-                "  pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('ventas_carrito_id'));",
-                "});"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// THEN: devuelve el carrito (200) con el mismo id",
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Id coincide', function () {",
+                  "  pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('ventas_carrito_id'));",
+                  "});"
+                ]
+              }
             }
           ],
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{project_host}}/api/ventas/carrito/{{ventas_carrito_id}}", "host": [ "{{project_host}}" ], "path": [ "api", "ventas", "carrito", "{{ventas_carrito_id}}" ] }
-          }
+            "url": {
+              "raw": "{{project_host}}/api/ventas/carrito/{{ventas_carrito_id}}",
+              "host": [
+                "{{project_host}}"
+              ],
+              "path": [
+                "api",
+                "ventas",
+                "carrito",
+                "{{ventas_carrito_id}}"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -79,62 +121,243 @@
           "event": [
             {
               "listen": "prerequest",
-              "script": { "type": "text/javascript", "exec": [
-                "// GIVEN: un producto con stock por debajo del minimo"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GIVEN: un producto con stock por debajo del minimo"
+                ]
+              }
             },
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "// THEN: se registra el producto (201) y queda marcado bajo stock",
-                "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
-                "var j = pm.response.json();",
-                "pm.test('SKU correcto', function () { pm.expect(j.sku).to.eql('SKU1'); });",
-                "pm.test('bajoStock = true', function () { pm.expect(j.bajoStock).to.be.true; });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// THEN: se registra el producto (201) y queda marcado bajo stock",
+                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                  "var j = pm.response.json();",
+                  "pm.test('SKU correcto', function () { pm.expect(j.sku).to.eql('SKU1'); });",
+                  "pm.test('bajoStock = true', function () { pm.expect(j.bajoStock).to.be.true; });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/json" } ],
-            "body": { "mode": "raw", "raw": "{\n  \"sku\": \"SKU1\",\n  \"nombre\": \"Taladro\",\n  \"stock\": 3,\n  \"stockMinimo\": 5\n}" },
-            "url": { "raw": "{{project_host}}/api/inventario", "host": [ "{{project_host}}" ], "path": [ "api", "inventario" ] }
-          }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"SKU1\",\n  \"nombre\": \"Taladro\",\n  \"stock\": 3,\n  \"stockMinimo\": 5\n}"
+            },
+            "url": {
+              "raw": "{{project_host}}/api/inventario",
+              "host": [
+                "{{project_host}}"
+              ],
+              "path": [
+                "api",
+                "inventario"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Listar bajo stock",
           "event": [
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "// THEN: devuelve la lista (200) con al menos un producto",
-                "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                "pm.test('Lista no vacia', function () { pm.expect(pm.response.json().length).to.be.above(0); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// THEN: devuelve la lista (200) con al menos un producto",
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Lista no vacia', function () { pm.expect(pm.response.json().length).to.be.above(0); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{project_host}}/api/inventario/bajo-stock", "host": [ "{{project_host}}" ], "path": [ "api", "inventario", "bajo-stock" ] }
-          }
+            "url": {
+              "raw": "{{project_host}}/api/inventario/bajo-stock",
+              "host": [
+                "{{project_host}}"
+              ],
+              "path": [
+                "api",
+                "inventario",
+                "bajo-stock"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Listar proveedores (STUB 501)",
           "event": [
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "// THEN (esperado hasta implementar): 501 Not Implemented",
-                "pm.test('Status code is 501 (pendiente)', function () { pm.response.to.have.status(501); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// THEN (esperado hasta implementar): 501 Not Implemented",
+                  "pm.test('Status code is 501 (pendiente)', function () { pm.response.to.have.status(501); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{project_host}}/api/proveedores", "host": [ "{{project_host}}" ], "path": [ "api", "proveedores" ] }
-          }
+            "url": {
+              "raw": "{{project_host}}/api/proveedores",
+              "host": [
+                "{{project_host}}"
+              ],
+              "path": [
+                "api",
+                "proveedores"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear orden de compra",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"proveedorId\": \"PROV001\",\r\n  \"lineas\": [\r\n    {\r\n      \"sku\": \"SKU001\",\r\n      \"cantidad\": 5,\r\n      \"precioUnitario\": 10\r\n    },\r\n    {\r\n      \"sku\": \"SKU002\",\r\n      \"cantidad\": 3,\r\n      \"precioUnitario\": 20\r\n    }\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:5000/api/ordenes-compra",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "ordenes-compra"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar orden",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:5000/api/ordenes-compra/OC-702C1ED392",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "ordenes-compra",
+                "OC-702C1ED392"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Autorizar Orden",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:5000/api/ordenes-compra/OC-702C1ED392/autorizar",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "ordenes-compra",
+                "OC-702C1ED392",
+                "autorizar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Enviar la orden",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:5000/api/ordenes-compra/OC-702C1ED392/enviar",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "ordenes-compra",
+                "OC-702C1ED392",
+                "enviar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancelar una orden enviada",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:5000/api/ordenes-compra/OC-702C1ED392",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "ordenes-compra",
+                "OC-702C1ED392"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -146,27 +369,51 @@
           "event": [
             {
               "listen": "prerequest",
-              "script": { "type": "text/javascript", "exec": [
-                "// GIVEN: un cliente que solicita un servicio de instalacion"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GIVEN: un cliente que solicita un servicio de instalacion"
+                ]
+              }
             },
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "// THEN: se registra la solicitud (201) en estado REGISTRADA",
-                "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
-                "var j = pm.response.json();",
-                "pm.test('Tiene id', function () { pm.expect(j).to.have.property('id'); });",
-                "pm.test('Estado REGISTRADA', function () { pm.expect(j.estado).to.eql('REGISTRADA'); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// THEN: se registra la solicitud (201) en estado REGISTRADA",
+                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                  "var j = pm.response.json();",
+                  "pm.test('Tiene id', function () { pm.expect(j).to.have.property('id'); });",
+                  "pm.test('Estado REGISTRADA', function () { pm.expect(j.estado).to.eql('REGISTRADA'); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/json" } ],
-            "body": { "mode": "raw", "raw": "{\n  \"cliente\": \"C-2\",\n  \"tipoServicio\": \"Instalacion de pisos\",\n  \"direccion\": \"Av Siempre Viva 123\"\n}" },
-            "url": { "raw": "{{project_host}}/api/solicitudes", "host": [ "{{project_host}}" ], "path": [ "api", "solicitudes" ] }
-          }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cliente\": \"C-2\",\n  \"tipoServicio\": \"Instalacion de pisos\",\n  \"direccion\": \"Av Siempre Viva 123\"\n}"
+            },
+            "url": {
+              "raw": "{{project_host}}/api/solicitudes",
+              "host": [
+                "{{project_host}}"
+              ],
+              "path": [
+                "api",
+                "solicitudes"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -178,27 +425,51 @@
           "event": [
             {
               "listen": "prerequest",
-              "script": { "type": "text/javascript", "exec": [
-                "// GIVEN: un cliente con un reclamo por falla de producto"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GIVEN: un cliente con un reclamo por falla de producto"
+                ]
+              }
             },
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "// THEN: se registra el reclamo (201) en estado REGISTRADO",
-                "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
-                "var j = pm.response.json();",
-                "pm.test('Tiene id', function () { pm.expect(j).to.have.property('id'); });",
-                "pm.test('Estado REGISTRADO', function () { pm.expect(j.estado).to.eql('REGISTRADO'); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// THEN: se registra el reclamo (201) en estado REGISTRADO",
+                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                  "var j = pm.response.json();",
+                  "pm.test('Tiene id', function () { pm.expect(j).to.have.property('id'); });",
+                  "pm.test('Estado REGISTRADO', function () { pm.expect(j.estado).to.eql('REGISTRADO'); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/json" } ],
-            "body": { "mode": "raw", "raw": "{\n  \"cliente\": \"C-3\",\n  \"producto\": \"Cortadora\",\n  \"motivo\": \"Falla de motor\"\n}" },
-            "url": { "raw": "{{project_host}}/api/reclamos", "host": [ "{{project_host}}" ], "path": [ "api", "reclamos" ] }
-          }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cliente\": \"C-3\",\n  \"producto\": \"Cortadora\",\n  \"motivo\": \"Falla de motor\"\n}"
+            },
+            "url": {
+              "raw": "{{project_host}}/api/reclamos",
+              "host": [
+                "{{project_host}}"
+              ],
+              "path": [
+                "api",
+                "reclamos"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -210,29 +481,63 @@
           "event": [
             {
               "listen": "prerequest",
-              "script": { "type": "text/javascript", "exec": [
-                "// GIVEN: una iniciativa de reciclaje que requiere presupuesto"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GIVEN: una iniciativa de reciclaje que requiere presupuesto"
+                ]
+              }
             },
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "// THEN: se formula la iniciativa (201) con codigo y estado FORMULADA",
-                "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
-                "var j = pm.response.json();",
-                "pm.test('Tiene codigo', function () { pm.expect(j).to.have.property('codigo'); });",
-                "pm.test('Estado FORMULADA', function () { pm.expect(j.estado).to.eql('FORMULADA'); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// THEN: se formula la iniciativa (201) con codigo y estado FORMULADA",
+                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                  "var j = pm.response.json();",
+                  "pm.test('Tiene codigo', function () { pm.expect(j).to.have.property('codigo'); });",
+                  "pm.test('Estado FORMULADA', function () { pm.expect(j.estado).to.eql('FORMULADA'); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/json" } ],
-            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Reciclaje CD Lima\",\n  \"tipo\": \"RECICLAJE\",\n  \"requierePresupuesto\": true,\n  \"presupuestoSolicitado\": 5000\n}" },
-            "url": { "raw": "{{project_host}}/api/iniciativas", "host": [ "{{project_host}}" ], "path": [ "api", "iniciativas" ] }
-          }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Reciclaje CD Lima\",\n  \"tipo\": \"RECICLAJE\",\n  \"requierePresupuesto\": true,\n  \"presupuestoSolicitado\": 5000\n}"
+            },
+            "url": {
+              "raw": "{{project_host}}/api/iniciativas",
+              "host": [
+                "{{project_host}}"
+              ],
+              "path": [
+                "api",
+                "iniciativas"
+              ]
+            }
+          },
+          "response": []
         }
       ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "project_host",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "ventas_carrito_id",
+      "value": ""
     }
   ]
 }
