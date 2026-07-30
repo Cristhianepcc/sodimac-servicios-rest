@@ -19,7 +19,7 @@ class Config:
     # docker-compose.yml levanta un Postgres que coincide con esta URL por defecto.
     DATABASE_URL = os.getenv(
         "DATABASE_URL",
-        "postgresql+psycopg://sodimac:sodimac@localhost:5432/reabastecimiento",
+        "postgresql+psycopg://sodimac:sodimac@localhost:5433/reabastecimiento",
     )
 
     # Crea las tablas automáticamente al iniciar (útil en desarrollo/laboratorio).
