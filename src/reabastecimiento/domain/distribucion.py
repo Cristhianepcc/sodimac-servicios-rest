@@ -54,7 +54,7 @@ class PedidoDistribucion:
 class Envio:
     id: str
     pedido_id: str
-    transportista: str
+    transportista: str = ""
     fecha_despacho: str | None = None
     estado: EstadoEnvio = EstadoEnvio.PREPARADO
 
