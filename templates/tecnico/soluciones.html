@@ -1,0 +1,27 @@
+{% extends "dashboard.html" %}
+{% block title %}Soluciones{% endblock %}
+{% block menu %}
+<a class="nav-link" href="{{ url_for('postventa_web.tecnico_evaluaciones') }}">Evaluaciones</a>
+<a class="nav-link active" href="{{ url_for('postventa_web.tecnico_soluciones') }}">Soluciones</a>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Soluciones</h1>
+  <div class="pager">
+    <button class="btn btn-outline-secondary btn-sm" id="prev">Anterior</button>
+    <span id="page-label">1</span>
+    <button class="btn btn-outline-secondary btn-sm" id="next">Siguiente</button>
+  </div>
+</div>
+<div id="alerta" class="alert d-none"></div>
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead><tr><th>ID</th><th>Cliente</th><th>Producto</th><th>Estado</th></tr></thead>
+    <tbody id="soluciones"></tbody>
+  </table>
+</div>
+<section id="detalle" class="detail-panel d-none"></section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/tecnico.js') }}"></script>
+{% endblock %}

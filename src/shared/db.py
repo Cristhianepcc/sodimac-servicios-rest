@@ -50,5 +50,5 @@ def crear_tablas() -> None:
 
 def get_session():
     """Devuelve una nueva sesión de SQLAlchemy."""
-    _, SessionLocal = init_engine()
-    return SessionLocal()
+    _, fabrica_sesion = init_engine()
+    return fabrica_sesion()

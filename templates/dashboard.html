@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">Sodimac</div>
+    <div class="sidebar-user">{{ session.usuario.nombre_usuario }}<span>{{ session.usuario.rol }}</span></div>
+    <nav class="nav flex-column gap-1">
+      {% block menu %}{% endblock %}
+      <a class="nav-link text-danger" href="{{ url_for('postventa_web.logout') }}">Cerrar Sesion</a>
+    </nav>
+  </aside>
+  <main class="content">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

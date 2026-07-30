@@ -7,7 +7,8 @@
   "variable": [
     { "key": "project_host", "value": "http://localhost:5000" },
     { "key": "ventas_carrito_id", "value": "" },
-    { "key": "proveedor_id", "value": "" }
+    { "key": "proveedor_id", "value": "" },
+    { "key": "rse_codigo", "value": "" }
   ],
   "item": [
     {
@@ -337,7 +338,7 @@
                 "// THEN: se formula la iniciativa (201) con codigo y estado FORMULADA",
                 "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
                 "var j = pm.response.json();",
-                "pm.test('Tiene codigo', function () { pm.expect(j).to.have.property('codigo'); });",
+                "pm.test('Tiene codigo', function () { pm.expect(j).to.have.property('codigo'); pm.collectionVariables.set('rse_codigo', j.codigo); });",
                 "pm.test('Estado FORMULADA', function () { pm.expect(j.estado).to.eql('FORMULADA'); });"
               ] }
             }
@@ -347,6 +348,97 @@
             "header": [ { "key": "Content-Type", "value": "application/json" } ],
             "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Reciclaje CD Lima\",\n  \"tipo\": \"RECICLAJE\",\n  \"requierePresupuesto\": true,\n  \"presupuestoSolicitado\": 5000\n}" },
             "url": { "raw": "{{project_host}}/api/iniciativas", "host": [ "{{project_host}}" ], "path": [ "api", "iniciativas" ] }
+          }
+        },
+        {
+          "name": "Evaluar iniciativa (comite)",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [ "// GIVEN: una iniciativa FORMULADA que requiere presupuesto (rse_codigo)" ] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "// THEN: se aprueba (200) y el estado pasa a APROBADA",
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "var j = pm.response.json();",
+              "pm.test('Estado APROBADA', function () { pm.expect(j.estado).to.eql('APROBADA'); });",
+              "pm.test('Presupuesto aprobado > 0', function () { pm.expect(j.presupuestoAprobado).to.be.above(0); });"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"aprobada\": true,\n  \"presupuestoAprobado\": 4000\n}" },
+            "url": { "raw": "{{project_host}}/api/iniciativas/{{rse_codigo}}/evaluacion", "host": [ "{{project_host}}" ], "path": [ "api", "iniciativas", "{{rse_codigo}}", "evaluacion" ] }
+          }
+        },
+        {
+          "name": "Agregar indicador (KPI)",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [ "// GIVEN: una iniciativa aprobada" ] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "// THEN: se agrega el KPI (201) y aparece en la lista de indicadores",
+              "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+              "pm.test('Tiene 1 indicador', function () { pm.expect(pm.response.json().indicadores.length).to.eql(1); });"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Residuos reciclados\",\n  \"unidad\": \"ton\",\n  \"meta\": 100\n}" },
+            "url": { "raw": "{{project_host}}/api/iniciativas/{{rse_codigo}}/indicadores", "host": [ "{{project_host}}" ], "path": [ "api", "iniciativas", "{{rse_codigo}}", "indicadores" ] }
+          }
+        },
+        {
+          "name": "Registrar evidencia de avance",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [ "// GIVEN: una iniciativa en ejecucion" ] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "// THEN: se registra la evidencia (201)",
+              "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+              "pm.test('Tiene 1 evidencia', function () { pm.expect(pm.response.json().evidencias.length).to.eql(1); });"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"descripcion\": \"Campana tienda A\",\n  \"porcentajeAvance\": 40\n}" },
+            "url": { "raw": "{{project_host}}/api/iniciativas/{{rse_codigo}}/evidencias", "host": [ "{{project_host}}" ], "path": [ "api", "iniciativas", "{{rse_codigo}}", "evidencias" ] }
+          }
+        },
+        {
+          "name": "Generar reporte de sostenibilidad",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [ "// GIVEN: una iniciativa aprobada con avances" ] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "// THEN: se genera el reporte (201) y el estado pasa a REPORTADA",
+              "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+              "var j = pm.response.json();",
+              "pm.test('Estado REPORTADA', function () { pm.expect(j.estado).to.eql('REPORTADA'); });",
+              "pm.test('Reporte generado', function () { pm.expect(j.reporte).to.not.be.null; });"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"resumen\": \"Avance Q1 de la iniciativa de reciclaje\"\n}" },
+            "url": { "raw": "{{project_host}}/api/iniciativas/{{rse_codigo}}/reporte", "host": [ "{{project_host}}" ], "path": [ "api", "iniciativas", "{{rse_codigo}}", "reporte" ] }
+          }
+        },
+        {
+          "name": "Aprobar publicacion del reporte",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [ "// GIVEN: una iniciativa con reporte generado" ] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "// THEN: se publica (200) y el estado final es PUBLICADA",
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "var j = pm.response.json();",
+              "pm.test('Estado PUBLICADA', function () { pm.expect(j.estado).to.eql('PUBLICADA'); });",
+              "pm.test('Reporte aprobado para publicacion', function () { pm.expect(j.reporte.aprobadoPublicacion).to.be.true; });"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"urlPublicacion\": \"https://sodimac.com/rse/2026\"\n}" },
+            "url": { "raw": "{{project_host}}/api/iniciativas/{{rse_codigo}}/reporte/publicacion", "host": [ "{{project_host}}" ], "path": [ "api", "iniciativas", "{{rse_codigo}}", "reporte", "publicacion" ] }
           }
         }
       ]
