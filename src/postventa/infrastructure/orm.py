@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import Boolean, DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -20,11 +21,12 @@ class ReclamoORM(Base):
     producto: Mapped[str] = mapped_column(String(120), nullable=False)
     motivo: Mapped[str] = mapped_column(String(300), nullable=False)
     estado: Mapped[str] = mapped_column(String(20), nullable=False, default="REGISTRADO")
-    cumple_garantia: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
-    motivo_validacion: Mapped[str | None] = mapped_column(String(300), nullable=True)
-    diagnostico: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    procede_evaluacion: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
-    tipo_solucion: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    mensaje_cliente: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    fecha_cierre: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    fecha_notificacion: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+    cumple_garantia: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
+    motivo_validacion: Mapped[Optional[str]] = mapped_column(String(300), nullable=True)
+    diagnostico: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    procede_evaluacion: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
+    tipo_solucion: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    mensaje_cliente: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    fecha_cierre: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    fecha_notificacion: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
