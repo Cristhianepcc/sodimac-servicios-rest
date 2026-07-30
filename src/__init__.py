@@ -21,7 +21,7 @@ from src.shared.http import registrar_manejadores_error
 
 # Procesos de negocio (bounded contexts). Agregar aquí un nuevo proceso solo si
 # se crea un proceso de negocio nuevo (no hace falta para agregar servicios).
-PROCESOS = ["ventas", "reabastecimiento", "servicios_cliente", "postventa", "rse"]
+PROCESOS = ["ventas", "reabastecimiento", "servicios_cliente", "postventa", "rse", "web"]
 
 
 def _autoregistrar_blueprints(app: Flask) -> None:
@@ -42,8 +42,9 @@ def _autoregistrar_blueprints(app: Flask) -> None:
 
 
 def create_app() -> Flask:
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder="../templates", static_folder="../static")
     app.config.from_object(Config)
+    app.secret_key = app.config.get("SECRET_KEY") or "postventa-web-dev"
 
     if Config.REPO_BACKEND == "sqlalchemy" and Config.AUTO_CREATE_TABLES:
         from src.shared.db import crear_tablas

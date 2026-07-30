@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Registro - Postventa{% endblock %}
+{% block body %}
+<main class="auth-shell">
+  <section class="auth-panel">
+    <div class="brand-mark">Sodimac</div>
+    <h1>Registro</h1>
+    <p class="text-secondary mb-4">Crea un usuario para acceder al dashboard.</p>
+    {% include "partials/flash.html" ignore missing %}
+    <form method="post" class="vstack gap-3">
+      <div>
+        <label class="form-label" for="nombre_usuario">Usuario</label>
+        <input class="form-control" id="nombre_usuario" name="nombre_usuario" required>
+      </div>
+      <div>
+        <label class="form-label" for="password">Password</label>
+        <input class="form-control" id="password" name="password" type="password" required>
+      </div>
+      <div>
+        <label class="form-label" for="rol">Rol</label>
+        <select class="form-select" id="rol" name="rol" required>
+          <option value="CLIENTE">CLIENTE</option>
+          <option value="POSTVENTA">POSTVENTA</option>
+          <option value="TECNICO">TECNICO</option>
+        </select>
+      </div>
+      <button class="btn btn-primary w-100" type="submit">Registrarme</button>
+      <a class="btn btn-link" href="{{ url_for('postventa_web.login') }}">Volver al login</a>
+    </form>
+  </section>
+</main>
+{% endblock %}
