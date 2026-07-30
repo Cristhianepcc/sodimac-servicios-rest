@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Login - Postventa{% endblock %}
+{% block body %}
+<main class="auth-shell">
+  <section class="auth-panel">
+    <div class="brand-mark">Sodimac</div>
+    <h1>Postventa</h1>
+    <p class="text-secondary mb-4">Ingresa para continuar.</p>
+    {% include "partials/flash.html" ignore missing %}
+    <form method="post" class="vstack gap-3">
+      <div>
+        <label class="form-label" for="nombre_usuario">Usuario</label>
+        <input class="form-control" id="nombre_usuario" name="nombre_usuario" autocomplete="username" required>
+      </div>
+      <div>
+        <label class="form-label" for="password">Password</label>
+        <input class="form-control" id="password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="btn btn-primary w-100" type="submit">Ingresar</button>
+      <a class="btn btn-link" href="{{ url_for('postventa_web.registro') }}">Crear cuenta</a>
+    </form>
+  </section>
+</main>
+{% endblock %}

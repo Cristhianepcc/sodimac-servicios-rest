@@ -1,0 +1,26 @@
+{% extends "dashboard.html" %}
+{% block title %}Reclamos - Postventa{% endblock %}
+{% block menu %}
+<a class="nav-link active" href="{{ url_for('postventa_web.postventa_reclamos') }}">Reclamos</a>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Reclamos</h1>
+  <div class="pager">
+    <button class="btn btn-outline-secondary btn-sm" id="prev">Anterior</button>
+    <span id="page-label">1</span>
+    <button class="btn btn-outline-secondary btn-sm" id="next">Siguiente</button>
+  </div>
+</div>
+<div id="alerta" class="alert d-none"></div>
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead><tr><th>ID</th><th>Cliente</th><th>Producto</th><th>Estado</th></tr></thead>
+    <tbody id="reclamos"></tbody>
+  </table>
+</div>
+<section id="detalle" class="detail-panel d-none"></section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/postventa.js') }}"></script>
+{% endblock %}

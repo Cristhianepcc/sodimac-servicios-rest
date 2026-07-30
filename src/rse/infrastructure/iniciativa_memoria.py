@@ -14,5 +14,8 @@ class IniciativaRepositorioMemoria(IIniciativaRepositorio):
     def buscar(self, codigo: str) -> IniciativaRSE | None:
         return self._datos.get(codigo)
 
+    def actualizar(self, iniciativa: IniciativaRSE) -> None:
+        self._datos[iniciativa.codigo] = iniciativa
+
     def listar(self) -> list[IniciativaRSE]:
         return list(self._datos.values())

@@ -1,5 +1,6 @@
 # Python
 __pycache__/
+.pytest_cache/
 *.py[cod]
 *.egg-info/
 .eggs/
@@ -25,3 +26,6 @@ env/
 
 # Sistema
 .DS_Store
+
+# Logs de los scripts de demo
+.demo-logs/
