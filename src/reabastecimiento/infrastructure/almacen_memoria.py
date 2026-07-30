@@ -23,6 +23,9 @@ class AlmacenRepositorioMemoria(IAlmacenRepositorio):
     def buscar_por_sku(self, sku: str) -> list[MercaderiaUbicada]:
         return [m for m in self._mercaderia.values() if m.sku == sku]
 
+    def listar_toda_mercaderia(self) -> list[MercaderiaUbicada]:
+        return list(self._mercaderia.values())
+
     def actualizar_inventario_ubicacion(self, sku: str, ubicacion_codigo: str, cantidad: int) -> None:
         for m in self._mercaderia.values():
             if m.sku == sku and m.ubicacion_codigo == ubicacion_codigo:

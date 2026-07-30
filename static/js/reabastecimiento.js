@@ -430,7 +430,7 @@ function initAlmacen() {
   }
 
   async function loadMercaderia() {
-    const items = await apiJson("/api/almacenes/ubicaciones").then(() => []);
+    const items = await apiJson("/api/almacenes/mercaderia");
     renderMercaderia(items);
   }
 

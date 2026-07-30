@@ -34,6 +34,11 @@ class AlmacenRepositorioSQLAlchemy(IAlmacenRepositorio):
             rows = s.query(MercaderiaUbicadaORM).filter_by(sku=sku).all()
             return [MercaderiaUbicada(id=r.id, sku=r.sku, ubicacion_codigo=r.ubicacion_codigo, cantidad=r.cantidad, fecha_ubicacion=r.fecha_ubicacion) for r in rows]
 
+    def listar_toda_mercaderia(self) -> list[MercaderiaUbicada]:
+        with get_session() as s:
+            rows = s.query(MercaderiaUbicadaORM).all()
+            return [MercaderiaUbicada(id=r.id, sku=r.sku, ubicacion_codigo=r.ubicacion_codigo, cantidad=r.cantidad, fecha_ubicacion=r.fecha_ubicacion) for r in rows]
+
     def actualizar_inventario_ubicacion(self, sku: str, ubicacion_codigo: str, cantidad: int) -> None:
         with get_session() as s:
             row = s.query(MercaderiaUbicadaORM).filter_by(sku=sku, ubicacion_codigo=ubicacion_codigo).first()
