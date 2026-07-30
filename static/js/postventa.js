@@ -26,20 +26,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function showDetalle(id) {
     const reclamo = await apiJson(`/api/reclamos/${id}`);
+    const garantiaValidada = reclamo.cumpleGarantia !== null && reclamo.cumpleGarantia !== undefined;
+    const disabled = garantiaValidada ? "disabled" : "";
+    const badge = garantiaValidada ? `<span class="badge text-bg-success">Garantia validada</span>` : "";
+    const button = garantiaValidada ? "" : `<button class="btn btn-primary mt-3" type="submit">Guardar</button>`;
     const form = `
       <form id="form-garantia" class="mt-4">
-        <h3 class="h6">Validacion de garantia</h3>
+        <div class="stage-header mb-3">
+          <h3 class="h6 mb-0">Validacion de garantia</h3>
+          ${badge}
+        </div>
         <div class="form-check mb-3">
-          <input class="form-check-input" type="checkbox" id="cumpleGarantia" ${reclamo.cumpleGarantia ? "checked" : ""}>
+          <input class="form-check-input" type="checkbox" id="cumpleGarantia" ${reclamo.cumpleGarantia ? "checked" : ""} ${disabled}>
           <label class="form-check-label" for="cumpleGarantia">Cumple Garantia</label>
         </div>
         <label class="form-label" for="motivoValidacion">Motivo Validacion</label>
-        <textarea class="form-control" id="motivoValidacion" rows="3" required>${text(reclamo.motivoValidacion) === "-" ? "" : escapeHtml(reclamo.motivoValidacion)}</textarea>
-        <button class="btn btn-primary mt-3" type="submit">Guardar</button>
+        <textarea class="form-control" id="motivoValidacion" rows="3" required ${disabled}>${text(reclamo.motivoValidacion) === "-" ? "" : escapeHtml(reclamo.motivoValidacion)}</textarea>
+        ${button}
       </form>
     `;
     detalle.innerHTML = detailHtml(reclamo, form);
     detalle.classList.remove("d-none");
+    if (garantiaValidada) return;
     document.querySelector("#form-garantia").addEventListener("submit", async (event) => {
       event.preventDefault();
       try {
