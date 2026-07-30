@@ -13,7 +13,7 @@ El proceso de Postventa tiene como objetivo gestionar reclamos de clientes relac
 ---
 ## Flujo del Proceso de Negocio
 
-![Proceso de Postventa](docs/diagramas/Diagrama_postventa.png)
+![Proceso de Postventa](/docs/diagramas/Diagrama_postventa.png)
 
 **Figura 1.** Flujo BPMN del proceso de Postventa y Experiencia del Cliente.
 -------------
@@ -69,7 +69,7 @@ Campos:
 
 # 5. Arquitectura
 
-![Proceso de Postventa](docs/diagramas/arquitectura_postventa.png)
+![Proceso de Postventa](/docs/diagramas/arquitectura_postventa.png)
 
 La solución utiliza una arquitectura en capas compuesta por:
 
