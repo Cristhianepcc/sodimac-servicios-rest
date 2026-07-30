@@ -28,3 +28,22 @@ class Config:
     HOST = os.getenv("HOST", "0.0.0.0")
     PORT = int(os.getenv("PORT", "5000"))
     DEBUG = os.getenv("DEBUG", "true").lower() == "true"
+
+    # --- Mensajería asíncrona (integración con los procesos BPM de Bonita) ---
+    # 'memoria' (doble de prueba, default) | 'rabbitmq' (broker real)
+    EVENTOS_BACKEND = os.getenv("EVENTOS_BACKEND", "memoria")
+
+    RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
+    RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", "5672"))
+    RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
+    RABBITMQ_USER = os.getenv("RABBITMQ_USER", "guest")
+    RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "guest")
+    RABBITMQ_HEARTBEAT = int(os.getenv("RABBITMQ_HEARTBEAT", "600"))
+    RABBITMQ_TIMEOUT = int(os.getenv("RABBITMQ_TIMEOUT", "300"))
+
+    # Colas compartidas con el proceso BPM (mismos nombres que en Bonita/lab6).
+    COLA_CONVOCATORIAS = os.getenv("COLA_CONVOCATORIAS", "rse.convocatorias")
+    COLA_POSTULACIONES = os.getenv("COLA_POSTULACIONES", "rse.postulaciones")
+    # Salida: el servicio notifica al proceso BPM el resultado de sus tareas
+    # automáticas (la ServiceTask "Consolidar KPIs" consume de esta cola).
+    COLA_NOTIFICACIONES = os.getenv("COLA_NOTIFICACIONES", "rse.notificaciones")

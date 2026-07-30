@@ -42,6 +42,36 @@ class IniciativaServicio:
     def listar(self) -> list[IniciativaRSE]:
         return self._repo.listar()
 
+    # --- Integración guiada por eventos ---
+
+    def sincronizar_convocatoria(
+        self,
+        codigo: str,
+        nombre: str,
+        tipo: str,
+        presupuesto_aprobado: float = 0.0,
+        requisitos: str = "",
+    ) -> IniciativaRSE:
+        """Materializa la iniciativa que anuncia el proceso BPM por RabbitMQ.
+
+        **Idempotente**: si el código ya existe se devuelve el agregado tal
+        cual. El broker entrega *al menos una vez*, así que el mismo mensaje
+        puede reprocesarse y no debe duplicar ni pisar datos.
+        """
+        existente = self._repo.buscar(codigo)
+        if existente is not None:
+            return existente
+
+        iniciativa = IniciativaFabrica.desde_convocatoria(
+            codigo=codigo,
+            nombre=nombre,
+            tipo=tipo,
+            presupuesto_aprobado=presupuesto_aprobado,
+            requisitos=requisitos,
+        )
+        self._repo.adicionar(iniciativa)
+        return iniciativa
+
     # --- Ciclo del proceso BPM ---
 
     def evaluar(self, codigo: str, aprobada: bool, presupuesto_aprobado: float,
