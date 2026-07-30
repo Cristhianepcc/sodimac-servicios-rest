@@ -26,3 +26,6 @@ env/
 
 # Sistema
 .DS_Store
+
+# Logs de los scripts de demo
+.demo-logs/
