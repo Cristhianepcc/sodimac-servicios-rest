@@ -29,3 +29,6 @@ env/
 
 # Logs de los scripts de demo
 .demo-logs/
+
+# Credenciales locales de SonarQube (no versionar)
+.sonar-credenciales

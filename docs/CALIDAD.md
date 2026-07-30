@@ -20,17 +20,40 @@ Sin issues abiertos en ninguna severidad (Blocker, Critical, Major, Minor, Info)
 ## Cómo reproducir el análisis
 
 ```bash
-# 1) Servidor SonarQube
+./scripts/sonar.sh              # levanta el servidor si hace falta, analiza e informa
+./scripts/sonar.sh --informe    # solo el informe, sin volver a analizar
+./scripts/sonar.sh --detalle    # informe + lista de hallazgos abiertos
+./scripts/sonar.sh --parar      # detiene el servidor (libera ~2.5 GB de RAM)
+```
+
+El script se encarga de todo: crea o arranca el contenedor, espera a que esté operativo,
+cambia la contraseña por defecto la primera vez, genera un token y lo guarda en
+`.sonar-credenciales` (ignorado por git), analiza y resume el resultado señalando la
+**severidad máxima**, que es lo que determina la puntuación del criterio de calidad.
+
+La configuración del análisis está en [`sonar-project.properties`](../sonar-project.properties).
+
+> **Los dos montajes de volumen del scanner no son opcionales** si la partición raíz del equipo
+> está llena: el scanner escribe su caché y sus temporales en la capa de escritura del
+> contenedor y falla con `No space left on device` aunque Docker tenga su almacén en otra
+> partición. El script ya los aplica sobre `~/.cache/sonar-scanner`.
+
+<details>
+<summary>Equivalente manual, por si se quiere ejecutar sin el script</summary>
+
+```bash
+# 1) servidor
 docker run -d --name sonarqube-tif -p 9000:9000 \
   -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true sonarqube:community
+curl -s http://localhost:9000/api/system/status      # esperar "UP"
 
-# esperar a que responda UP
-curl -s http://localhost:9000/api/system/status
+# 2) credenciales (solo la primera vez)
+curl -s -u admin:admin -X POST http://localhost:9000/api/users/change_password \
+  -d "login=admin&previousPassword=admin&password=<NUEVA>"
+curl -s -u admin:<NUEVA> -X POST \
+  http://localhost:9000/api/user_tokens/generate -d "name=tif"
 
-# 2) Cambiar la contraseña por defecto y generar un token en
-#    http://localhost:9000  (admin/admin)
-
-# 3) Analizar
+# 3) análisis
 docker run --rm --network host \
   -v "$PWD:/usr/src" \
   -v "$HOME/.cache/sonar-scanner/dotsonar:/opt/sonar-scanner/.sonar" \
@@ -40,12 +63,7 @@ docker run --rm --network host \
   sonarsource/sonar-scanner-cli
 ```
 
-La configuración está en [`sonar-project.properties`](../sonar-project.properties).
-
-> **Los dos montajes de volumen no son opcionales** si la partición raíz del equipo
-> está llena: el scanner escribe su caché y sus temporales en la capa de escritura del
-> contenedor y falla con `No space left on device` aunque Docker tenga su almacén en
-> otra partición.
+</details>
 
 ## Qué se corrigió
 
