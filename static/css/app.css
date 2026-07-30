@@ -121,12 +121,16 @@ body {
 .detail-grid {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
 }
 
 .detail-item {
   border-bottom: 1px solid #edf0f5;
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding-bottom: 8px;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .detail-item span {
@@ -142,7 +146,9 @@ body {
   border: 1px solid #ffd99a;
   border-radius: 8px;
   margin-top: 18px;
+  overflow-wrap: anywhere;
   padding: 16px;
+  word-break: break-word;
 }
 
 .respuesta-cliente h2 {
@@ -159,6 +165,14 @@ body {
   align-items: center;
   display: flex;
   gap: 10px;
+}
+
+.stage-header {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
 }
 
 @media (max-width: 800px) {

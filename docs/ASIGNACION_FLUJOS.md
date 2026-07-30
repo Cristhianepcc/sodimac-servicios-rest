@@ -12,10 +12,9 @@ Cada integrante implementa **al menos un Servicio Web (controlador) y un Caso de
 | 3 | ___________ | reabastecimiento | Órdenes de Compra + Almacén | stubs 501 |
 | 4 | ___________ | reabastecimiento | Recepción/Calidad + Distribución + Auditoría | stubs 501 |
 | 5 | ___________ | servicios_cliente | Solicitud ✅ + Programación, Ejecución, Conformidad, Facturación | referencia lista |
-| 6 | ___________ | postventa | Reclamo ✅ + Validación, Evaluación, Soluciones, Casos, Notificaciones | referencia lista |
+| 6 | Erick Perez | postventa | Reclamo ✅ + Validación, Evaluación, Soluciones, Casos, Notificaciones | referencia lista |
 | 7 | ___________ | rse | Iniciativa ✅ + KPIs, Evidencias, Reporte, Publicación | referencia lista |
 
-✅ = servicio de referencia ya funcional (plantilla a copiar).
 
 ## Checklist por integrante
 

@@ -18,9 +18,10 @@ Entidades por bounded context. Las de **referencia** ya están implementadas
 - Por implementar: **Programacion**, **Ejecucion/Evidencia**, **Conformidad**, **Comprobante**.
 
 ## postventa
-- **Reclamo** (referencia): `id`, `cliente`, `producto`, `motivo`,
-  `estado {REGISTRADO, EN_EVALUACION, RESUELTO, RECHAZADO}`.
-- Por implementar: **Validacion (Garantia)**, **EvaluacionTecnica**, **Solucion**, **Caso**, **Notificacion**.
+- **Reclamo** : `id`, `cliente`, `dni`, `email`, `telefono`, `producto`, `motivo`,
+`estado`, `cumpleGarantia`, `motivoValidacion`, `diagnostico`,
+`procedeEvaluacion`, `tipoSolucion`, `mensajeCliente`,
+`fechaCierre`, `fechaNotificacion`.
 
 ## rse  (reutiliza el BDM del Lab 5)
 - **IniciativaRSE** (referencia): `codigo`, `nombre`, `tipo {RECICLAJE, EFICIENCIA_ENERGETICA,

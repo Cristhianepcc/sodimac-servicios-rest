@@ -27,7 +27,7 @@ Bonita: [`Cristhianepcc/laboratorio_6`](https://github.com/Cristhianepcc/laborat
 | 3 | *(por completar)* | `src/reabastecimiento` — Proveedores |
 | 4 | *(por completar)* | `src/reabastecimiento` — Recepción, distribución y auditoría |
 | 5 | *(por completar)* | `src/servicios_cliente` — Instalaciones |
-| 6 | *(por completar)* | `src/postventa` — Reclamos |
+| 6 |  Erick Pérez     | `src/postventa` — Reclamos |
 | 7 | Taipe, Cristhian | `src/rse` — RSE y Sostenibilidad, e integración por eventos |
 
 ---
@@ -217,9 +217,16 @@ formulación hasta la publicación del reporte.*
 
 | Método | URL | Parámetros |
 | --- | --- | --- |
-| `POST` | `/api/reclamos` | cuerpo del reclamo |
-| `GET` | `/api/reclamos` | — |
-| `GET` | `/api/reclamos/{reclamo_id}` | ruta: `reclamo_id` |
+| `POST` | `/api/reclamos` | Registrar reclamo |
+| `GET` | `/api/reclamos` | Listar reclamos abiertos (paginado) |
+| `GET` | `/api/reclamos/{reclamo_id}` | Consultar detalle de reclamo |
+| `PUT` | `/api/reclamos/{reclamo_id}` | Actualizar datos del reclamo |
+| `PATCH` | `/api/reclamos/{reclamo_id}/garantia` | Validar garantía |
+| `GET` | `/api/evaluaciones` | Listar reclamos pendientes de evaluación |
+| `PATCH` | `/api/reclamos/{reclamo_id}/evaluacion` | Registrar evaluación técnica |
+| `GET` | `/api/soluciones` | Listar reclamos aptos para solución |
+| `PATCH` | `/api/reclamos/{reclamo_id}/solucion` | Registrar solución |
+| `POST` | `/api/reclamos/{reclamo_id}/notificacion` | Enviar notificación al cliente |
 
 **Modelos:** agregado `Reclamo`.
 

@@ -35,37 +35,53 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function evaluacionForm(reclamo) {
+    const evaluacionCompleta = Boolean((reclamo.diagnostico || "").trim());
+    const disabled = evaluacionCompleta ? "disabled" : "";
+    const badge = evaluacionCompleta ? `<span class="badge text-bg-success">Evaluacion completada</span>` : "";
+    const button = evaluacionCompleta ? "" : `<button class="btn btn-primary mt-3" type="submit">Guardar</button>`;
     return `
       <form id="form-evaluacion" class="mt-4">
-        <h3 class="h6">Evaluacion tecnica</h3>
+        <div class="stage-header mb-3">
+          <h3 class="h6 mb-0">Evaluacion tecnica</h3>
+          ${badge}
+        </div>
         <label class="form-label" for="diagnostico">Diagnostico</label>
-        <textarea class="form-control mb-3" id="diagnostico" rows="3" required>${text(reclamo.diagnostico) === "-" ? "" : escapeHtml(reclamo.diagnostico)}</textarea>
+        <textarea class="form-control mb-3" id="diagnostico" rows="3" required ${disabled}>${text(reclamo.diagnostico) === "-" ? "" : escapeHtml(reclamo.diagnostico)}</textarea>
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="procede" ${reclamo.procedeEvaluacion ? "checked" : ""}>
+          <input class="form-check-input" type="checkbox" id="procede" ${reclamo.procedeEvaluacion ? "checked" : ""} ${disabled}>
           <label class="form-check-label" for="procede">Procede</label>
         </div>
-        <button class="btn btn-primary mt-3" type="submit">Guardar</button>
+        ${button}
       </form>
     `;
   }
 
   function solucionForm(reclamo) {
+    const casoResuelto = Boolean((reclamo.tipoSolucion || "").trim());
+    const disabled = casoResuelto ? "disabled" : "";
+    const badge = casoResuelto ? `<span class="badge text-bg-success">Caso resuelto</span>` : "";
+    const button = casoResuelto ? "" : `<button class="btn btn-primary mt-3" type="submit">Guardar</button>`;
     return `
       <form id="form-solucion" class="mt-4">
-        <h3 class="h6">Resolucion del caso</h3>
+        <div class="stage-header mb-3">
+          <h3 class="h6 mb-0">Resolucion del caso</h3>
+          ${badge}
+        </div>
         <label class="form-label" for="tipoSolucion">Tipo Solucion</label>
-        <select class="form-select mb-3" id="tipoSolucion" required>
+        <select class="form-select mb-3" id="tipoSolucion" required ${disabled}>
           ${["REEMBOLSO", "CAMBIO", "REPARACION"].map((tipo) => `<option value="${tipo}" ${reclamo.tipoSolucion === tipo ? "selected" : ""}>${tipo}</option>`).join("")}
         </select>
         <label class="form-label" for="mensajeCliente">Mensaje Cliente</label>
-        <textarea class="form-control" id="mensajeCliente" rows="4" required>${text(reclamo.mensajeCliente) === "-" ? "" : escapeHtml(reclamo.mensajeCliente)}</textarea>
-        <button class="btn btn-primary mt-3" type="submit">Guardar</button>
+        <textarea class="form-control" id="mensajeCliente" rows="4" required ${disabled}>${text(reclamo.mensajeCliente) === "-" ? "" : escapeHtml(reclamo.mensajeCliente)}</textarea>
+        ${button}
       </form>
     `;
   }
 
   function bindEvaluacion(id) {
-    document.querySelector("#form-evaluacion").addEventListener("submit", async (event) => {
+    const form = document.querySelector("#form-evaluacion");
+    if (!form || !form.querySelector("button[type='submit']")) return;
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
       try {
         await apiJson(`/api/reclamos/${id}/evaluacion`, {
@@ -85,7 +101,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function bindSolucion(id) {
-    document.querySelector("#form-solucion").addEventListener("submit", async (event) => {
+    const form = document.querySelector("#form-solucion");
+    if (!form || !form.querySelector("button[type='submit']")) return;
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
       try {
         await apiJson(`/api/reclamos/${id}/solucion`, {
