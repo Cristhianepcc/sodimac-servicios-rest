@@ -4,8 +4,10 @@ from flask import Blueprint, jsonify, request
 
 from src.reabastecimiento.application.auditoria_servicio import AuditoriaServicio, MovimientoStockServicio
 from src.reabastecimiento.domain.auditoria import Auditoria, MovimientoStock
+from src.shared.auth import proteger_api_bp
 
 bp = Blueprint("reabastecimiento_auditoria", __name__, url_prefix="/api/auditorias")
+proteger_api_bp(bp, "ALMACENERO")
 
 
 def _serializar_auditoria(a: Auditoria) -> dict:

@@ -13,8 +13,10 @@ from flask import Blueprint, jsonify, request
 
 from src.reabastecimiento.application.proveedor_servicio import ProveedorServicio
 from src.reabastecimiento.domain.proveedor import Proveedor
+from src.shared.auth import proteger_api_bp
 
 bp = Blueprint("reabastecimiento_proveedores", __name__, url_prefix="/api/proveedores")
+proteger_api_bp(bp, "ALMACENERO")
 
 
 def _serializar(p: Proveedor) -> dict:

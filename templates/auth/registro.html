@@ -18,11 +18,12 @@
       </div>
       <div>
         <label class="form-label" for="rol">Rol</label>
-        <select class="form-select" id="rol" name="rol" required>
-          <option value="CLIENTE">CLIENTE</option>
-          <option value="POSTVENTA">POSTVENTA</option>
-          <option value="TECNICO">TECNICO</option>
-        </select>
+          <select class="form-select" id="rol" name="rol" required>
+            <option value="ALMACENERO">ALMACENERO</option>
+            <option value="CLIENTE">CLIENTE</option>
+            <option value="POSTVENTA">POSTVENTA</option>
+            <option value="TECNICO">TECNICO</option>
+          </select>
       </div>
       <button class="btn btn-primary w-100" type="submit">Registrarme</button>
       <a class="btn btn-link" href="{{ url_for('postventa_web.login') }}">Volver al login</a>

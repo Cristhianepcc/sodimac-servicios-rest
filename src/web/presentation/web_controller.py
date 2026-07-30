@@ -5,7 +5,7 @@ from functools import wraps
 
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, session, url_for
 
-from src.web.auth_store import autenticar, crear_usuario, listar_reclamos_usuario, vincular_reclamo
+from src.web.auth_store import autenticar, crear_usuario, listar_reclamos_usuario, sembrar_usuarios_prueba, vincular_reclamo
 
 bp = Blueprint("postventa_web", __name__)
 
@@ -13,6 +13,7 @@ ROLE_HOME = {
     "CLIENTE": "postventa_web.cliente_registrar",
     "POSTVENTA": "postventa_web.postventa_reclamos",
     "TECNICO": "postventa_web.tecnico_evaluaciones",
+    "ALMACENERO": "reabastecimiento_web.proveedores",
 }
 
 
@@ -40,6 +41,7 @@ def index():
 
 @bp.route("/login", methods=["GET", "POST"])
 def login():
+    sembrar_usuarios_prueba()
     if request.method == "POST":
         usuario = autenticar(request.form.get("nombre_usuario", ""), request.form.get("password", ""))
         if usuario:

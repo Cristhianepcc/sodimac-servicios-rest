@@ -3,12 +3,29 @@
 <div class="app-shell">
   <aside class="sidebar">
     <div class="sidebar-brand">Sodimac</div>
-    <div class="sidebar-user">{{ session.usuario.nombre_usuario }}<span>{{ session.usuario.rol }}</span></div>
+    <div class="sidebar-user">
+      {% if session.get("usuario") %}
+        {{ session.usuario.nombre_usuario }}<span>{{ session.usuario.rol }}</span>
+      {% else %}
+        <span>Invitado</span>
+      {% endif %}
+    </div>
     <nav class="nav flex-column gap-1">
       {% block menu %}{% endblock %}
+      {% if session.get("usuario") and session.usuario.rol == "ALMACENERO" %}
       <hr class="my-2">
-      <a class="nav-link" href="{{ url_for('reabastecimiento_web.proveedores') }}">Reabastecimiento</a>
+      <span class="nav-link text-uppercase small fw-bold">Reabastecimiento</span>
+      <a class="nav-link ps-4" href="{{ url_for('reabastecimiento_web.proveedores') }}">Proveedores</a>
+      <a class="nav-link ps-4" href="{{ url_for('reabastecimiento_web.ordenes_compra') }}">Ordenes de Compra</a>
+      <a class="nav-link ps-4" href="{{ url_for('reabastecimiento_web.recepciones') }}">Recepciones</a>
+      <a class="nav-link ps-4" href="{{ url_for('reabastecimiento_web.distribucion') }}">Distribucion</a>
+      <a class="nav-link ps-4" href="{{ url_for('reabastecimiento_web.almacen') }}">Almacen</a>
+      <a class="nav-link ps-4" href="{{ url_for('reabastecimiento_web.auditorias') }}">Auditorias</a>
+      {% endif %}
+      {% if session.get("usuario") %}
+      <hr class="my-2">
       <a class="nav-link text-danger" href="{{ url_for('postventa_web.logout') }}">Cerrar Sesion</a>
+      {% endif %}
     </nav>
   </aside>
   <main class="content">
