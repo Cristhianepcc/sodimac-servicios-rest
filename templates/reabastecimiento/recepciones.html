@@ -1,0 +1,37 @@
+{% extends "dashboard.html" %}
+{% block title %}Recepciones - Reabastecimiento{% endblock %}
+{% block menu %}
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.proveedores') }}">Proveedores</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.ordenes_compra') }}">Ordenes de Compra</a>
+<a class="nav-link active" href="{{ url_for('reabastecimiento_web.recepciones') }}">Recepciones</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.distribucion') }}">Distribucion</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.almacen') }}">Almacen</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.auditorias') }}">Auditorias</a>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Recepciones</h1>
+  <button class="btn btn-primary btn-sm" id="btn-nueva">Nueva Recepcion</button>
+</div>
+<div id="alerta" class="alert d-none"></div>
+
+<div class="table-responsive mb-4">
+  <h3 class="h6 mb-2 text-muted">Ordenes de Compra Disponibles</h3>
+  <table class="table table-sm align-middle">
+    <thead><tr><th>ID</th><th>Proveedor</th><th>Estado</th><th>Total</th><th>Accion</th></tr></thead>
+    <tbody id="ordenes-disponibles"></tbody>
+  </table>
+</div>
+
+<div class="table-responsive">
+  <h3 class="h6 mb-2 text-muted">Recepciones Registradas</h3>
+  <table class="table align-middle">
+    <thead><tr><th>ID</th><th>Orden Compra</th><th>Fecha</th><th>Estado</th><th>Accion</th></tr></thead>
+    <tbody id="recepciones"></tbody>
+  </table>
+</div>
+<section id="detalle" class="detail-panel d-none"></section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/reabastecimiento.js') }}"></script>
+{% endblock %}

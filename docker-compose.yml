@@ -7,7 +7,9 @@ services:
       POSTGRES_PASSWORD: sodimac
       POSTGRES_DB: reabastecimiento
     ports:
-      - "5432:5432"
+      # 5433 en el host: el 5432 suele estar ocupado por un PostgreSQL nativo.
+      # Dentro de la red de Docker el contenedor sigue escuchando en 5432.
+      - "5433:5432"
     volumes:
       - sodimac_pgdata:/var/lib/postgresql/data
     healthcheck:

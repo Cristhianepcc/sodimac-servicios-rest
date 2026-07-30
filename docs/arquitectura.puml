@@ -1,0 +1,243 @@
+@startuml arquitectura_sodimac
+
+!define RECTANGLE class
+
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam component {
+    BackgroundColor<<presentation>> #E3F2FD
+    BackgroundColor<<application>> #E8F5E9
+    BackgroundColor<<domain>> #FFF3E0
+    BackgroundColor<<infrastructure>> #F3E5F5
+    BackgroundColor<<shared>> #E0E0E0
+    BackgroundColor<<database>> #FFEBEE
+    BackgroundColor<<external>> #E8EAF6
+    BorderColor<<presentation>> #1565C0
+    BorderColor<<application>> #2E7D32
+    BorderColor<<domain>> #E65100
+    BorderColor<<infrastructure>> #6A1B9A
+    BorderColor<<shared>> #424242
+    BorderColor<<database>> #C62828
+    BorderColor<<external>> #283593
+    ArrowColor #424242
+}
+skinparam package {
+    BackgroundColor<<bounded>> #F5F5F5
+    BorderColor<<bounded>> #757575
+}
+skinparam shadowing false
+skinparam defaultFontName "Arial"
+skinparam nodesep 30
+skinparam ranksep 40
+
+package "SODIMAC SERVICIOS REST" as System {
+    
+    package "Cliente HTTP / Postman / Frontend" as Client <<external>>
+    
+    package "Flask App Factory (create_app)" as Factory <<external>> {
+        component "Auto-registro Blueprints\ncreate_app() escanea src/*/presentation/*_controller.py" as AutoReg <<external>>
+    }
+    
+    package "Configuración" as Config <<external>> {
+        component "config.py\nREPO_BACKEND=memoria|sqlalchemy\nDATABASE_URL=postgresql://..." as ConfigFile <<external>>
+    }
+    
+    package "Shared Kernel (src/shared/)" as Shared <<shared>> {
+        component "db.py\nSQLAlchemy engine + session" as SharedDB <<shared>>
+        component "errores.py\nExcepciones de dominio\n(NoEncontrado, Conflicto, ValidacionError)" as SharedError <<shared>>
+        component "http.py\nResponse helpers\n(json_response, error_response)" as SharedHTTP <<shared>>
+        component "stub.py\nHelper stubs para tests" as SharedStub <<shared>>
+    }
+    
+    package "Bounded Context: VENTAS" as Ventas <<bounded>> {
+        package "presentation/" as VPres <<presentation>> {
+            component "carrito_controller.py\nBlueprint: carrito_bp\nPOST /api/carrito\nGET /api/carrito/<id>" as VCtrl <<presentation>>
+        }
+        package "application/" as VApp <<application>> {
+            component "carrito_servicio.py\nCarritoServicio\n- crear_carrito()\n- agregar_item()\n- confirmar_carrito()\n- obtener_carrito()" as VSvc <<application>>
+        }
+        package "domain/" as VDom <<domain>> {
+            component "modelo.py\nCarrito (Entity)\nItemCarrito (Value Object)\nEstadoCarrito (Enum)" as VModel <<domain>>
+            component "repositorio.py\nCarritoRepositorio (Interface)\n- guardar()\n- obtener_por_id()" as VRepoInt <<domain>>
+            component "fabrica.py\nCarritoFabrica\n- crear_carrito()\n- crear_item()" as VFab <<domain>>
+        }
+        package "infrastructure/" as VInfra <<infrastructure>> {
+            component "orm.py\nCarritoModel (SQLAlchemy)\nItemCarritoModel" as VORM <<infrastructure>>
+            component "repositorio_memoria.py\nCarritoRepositorioMemoria\nDict en memoria (Fake/Stub)" as VMem <<infrastructure>>
+            component "repositorio_sqlalchemy.py\nCarritoRepositorioSQLAlchemy\nPostgreSQL via SQLAlchemy" as VSQL <<infrastructure>>
+        }
+    }
+    
+    package "Bounded Context: REABASTECIMIENTO" as Reab <<bounded>> {
+        package "presentation/" as RPres <<presentation>> {
+            component "inventario_controller.py\nBlueprint: inventario_bp\nGET/POST /api/inventario" as RInvCtrl <<presentation>>
+            component "proveedores_controller.py\nBlueprint: proveedores_bp\nCRUD /api/proveedores" as RProvCtrl <<presentation>>
+            component "ordenes_compra_controller.py\nBlueprint: ordenes_bp\n/api/ordenes-compra" as ROCtrl <<presentation>>
+            component "recepcion_controller.py\nBlueprint: recepcion_bp\n/api/recepcion" as RRecCtrl <<presentation>>
+            component "distribucion_controller.py\nBlueprint: distribucion_bp\n/api/distribucion" as RDisCtrl <<presentation>>
+            component "auditoria_controller.py\nBlueprint: auditoria_bp\n/api/auditoria" as RAudCtrl <<presentation>>
+            component "almacen_controller.py\nBlueprint: almacen_bp\n/api/almacenes" as RAlmCtrl <<presentation>>
+        }
+        package "application/" as RApp <<application>> {
+            component "inventario_servicio.py\nInventarioServicio" as RInvSvc <<application>>
+            component "proveedor_servicio.py\nProveedorServicio" as RProvSvc <<application>>
+        }
+        package "domain/" as RDom <<domain>> {
+            component "inventario.py\nProductoInventario (Entity)\nsku, nombre, stock, stock_minimo\nbajo_stock (propiedad)" as RInvModel <<domain>>
+            component "proveedor.py\nProveedor (Entity)\nrut, nombre, contacto, activo" as RProvModel <<domain>>
+        }
+        package "infrastructure/" as RInfra <<infrastructure>> {
+            component "orm.py\nProductoInventarioModel\nProveedorModel (SQLAlchemy)" as RORM <<infrastructure>>
+            component "inventario_memoria.py\nInventarioRepositorioMemoria" as RInvMem <<infrastructure>>
+            component "inventario_sqlalchemy.py\nInventarioRepositorioSQLAlchemy" as RInvSQL <<infrastructure>>
+            component "proveedor_memoria.py\nProveedorRepositorioMemoria" as RProvMem <<infrastructure>>
+            component "proveedor_sqlalchemy.py\nProveedorRepositorioSQLAlchemy" as RProvSQL <<infrastructure>>
+        }
+    }
+    
+    package "Bounded Context: SERVICIOS_CLIENTE" as ServCli <<bounded>> {
+        package "presentation/" as SCtrl <<presentation>> {
+            component "solicitud_controller.py\nBlueprint: solicitud_bp\nPOST/GET /api/solicitudes" as SCtrlComp <<presentation>>
+        }
+        package "application/" as SApp <<application>> {
+            component "solicitud_servicio.py\nSolicitudServicio" as SSvc <<application>>
+        }
+        package "domain/" as SDom <<domain>> {
+            component "solicitud.py\nSolicitudServicio (Entity)\nid, cliente, tipo_servicio, direccion\nEstadoSolicitud Enum" as SModel <<domain>>
+        }
+        package "infrastructure/" as SInfra <<infrastructure>> {
+            component "orm.py\nSolicitudModel (SQLAlchemy)" as SORM <<infrastructure>>
+            component "solicitud_memoria.py\nSolicitudRepositorioMemoria" as SMem <<infrastructure>>
+            component "solicitud_sqlalchemy.py\nSolicitudRepositorioSQLAlchemy" as SSQL <<infrastructure>>
+        }
+    }
+    
+    package "Bounded Context: POSTVENTA" as PostV <<bounded>> {
+        package "presentation/" as PVP <<presentation>> {
+            component "reclamo_controller.py\nBlueprint: reclamo_bp\n/api/reclamos" as PVCtrl <<presentation>>
+        }
+        package "application/" as PVApp <<application>> {
+            component "reclamo_servicio.py\nReclamoServicio" as PVSvc <<application>>
+        }
+        package "domain/" as PVDom <<domain>> {
+            component "reclamo.py\nReclamo (Entity)\nid, cliente, producto, motivo\nEstadoReclamo Enum" as PVModel <<domain>>
+        }
+        package "infrastructure/" as PVInfra <<infrastructure>> {
+            component "orm.py + repositorios\n(SQLAlchemy + Memoria)" as PVInfraComp <<infrastructure>>
+        }
+    }
+    
+    package "Bounded Context: RSE" as RSE <<bounded>> {
+        package "presentation/" as RSEP <<presentation>> {
+            component "iniciativa_controller.py\nBlueprint: iniciativa_bp\n/api/iniciativas-rse" as RSECtrl <<presentation>>
+        }
+        package "application/" as RSEApp <<application>> {
+            component "iniciativa_servicio.py\nIniciativaServicio" as RSESvc <<application>>
+        }
+        package "domain/" as RSEDom <<domain>> {
+            component "iniciativa.py\nIniciativaRSE (Entity)\ncodigo, nombre, tipo (Enum)\nestado, presupuesto" as RSEModel <<domain>>
+        }
+        package "infrastructure/" as RSEInfra <<infrastructure>> {
+            component "orm.py\nIniciativaModel (SQLAlchemy)\niniciativa_memoria.py\niniciativa_sqlalchemy.py" as RSEInfraComp <<infrastructure>>
+        }
+    }
+    
+    package "Base de Datos" as DB <<database>> {
+        database "PostgreSQL\n(docker-compose.yml)\nHost: localhost:5432\nDB: reabastecimiento\nUser: sodimac" as Postgres <<database>>
+    }
+    
+    package "Docker Compose" as Docker <<external>> {
+        component "docker-compose.yml\nPostgreSQL 15\nPort: 5432\nVolumes: pgdata" as DockerComp <<external>>
+    }
+}
+
+' ===== RELACIONES =====
+
+Client --> Factory : "HTTP Request\nFlask test_client / Postman"
+Factory --> AutoReg : "create_app()\nautoregistra blueprints"
+ConfigFile --> Factory : "Config.REPO_BACKEND\nConfig.DATABASE_URL"
+
+' Shared Kernel dependencies
+VInfra --> SharedDB : "create_engine()\nsessionmaker()"
+RInfra --> SharedDB
+SInfra --> SharedDB
+PVInfra --> SharedDB
+RSEInfra --> SharedDB
+
+VApp --> SharedError : "raise NoEncontrado()"
+RApp --> SharedError
+SApp --> SharedError
+PVApp --> SharedError
+RSEApp --> SharedError
+
+VCtrl --> SharedHTTP : "json_response()\nerror_response()"
+RCtrl --> SharedHTTP
+SCtrl --> SharedHTTP
+PVCtrl --> SharedHTTP
+RSECtrl --> SharedHTTP
+
+' VENTAS - Layer dependencies
+VCtrl --> VSvc : "usa CarritoServicio"
+VSvc --> VModel : "crea Carrito, ItemCarrito"
+VSvc --> VFab : "CarritoFabrica.crear_carrito()"
+VSvc --> VRepoInt : "depende de Interfaz\nCarritoRepositorio"
+VFab --> VModel
+VRepoInt ^.. VMem : "implementa\n(REPO_BACKEND=memoria)"
+VRepoInt ^.. VSQL : "implementa\n(REPO_BACKEND=sqlalchemy)"
+VSQL --> VORM : "usa SQLAlchemy Models"
+VMem ..> VModel : "manipula Entidades"
+VORM --> Postgres : "mapea a tablas"
+
+' REABASTECIMIENTO - Layer dependencies
+RInvCtrl --> RInvSvc
+RProvCtrl --> RProvSvc
+ROCtrl --> RInvSvc
+RRecCtrl --> RInvSvc
+RDisCtrl --> RInvSvc
+RAudCtrl --> RInvSvc
+RAlmCtrl --> RInvSvc
+
+RInvSvc --> RInvModel
+RProvSvc --> RProvModel
+RInvSvc ..> RInfra : "get_inventario_repositorio()"
+RProvSvc ..> RInfra : "get_proveedor_repositorio()"
+RInfra ^.. RInvMem
+RInfra ^.. RInvSQL
+RInfra ^.. RProvMem
+RInfra ^.. RProvSQL
+RInvSQL --> RORM
+RProvSQL --> RORM
+RORM --> Postgres
+
+' SERVICIOS_CLIENTE - Layer dependencies
+SCtrlComp --> SSvc
+SSvc --> SModel
+SSvc ..> SInfra : "get_solicitud_repositorio()"
+SInfra ^.. SMem
+SInfra ^.. SSQL
+SSQL --> SORM
+SORM --> Postgres
+
+' POSTVENTA - Layer dependencies
+PVCtrl --> PVSvc
+PVSvc --> PVModel
+PVSvc ..> PVInfra
+PVInfra --> Postgres
+
+' RSE - Layer dependencies
+RSECtrl --> RSESvc
+RSESvc --> RSEModel
+RSESvc ..> RSEInfra
+RSEInfra --> Postgres
+
+' Config drives infrastructure choice
+ConfigFile --> VInfra : "REPO_BACKEND"
+ConfigFile --> RInfra
+ConfigFile --> SInfra
+ConfigFile --> PVInfra
+ConfigFile --> RSEInfra
+
+DockerComp --> Postgres : "levanta contenedor"
+
+@enduml

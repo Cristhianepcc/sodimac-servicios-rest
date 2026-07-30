@@ -1,12 +1,14 @@
 {
   "info": {
     "name": "Sodimac - Servicios REST (BDD)",
-    "description": "Pruebas de aceptacion (API) del Lab 7. Una carpeta por proceso de negocio. Cada request sigue el enfoque BDD: GIVEN (Pre-request), WHEN (Send), THEN (Post-response / Tests). Los 5 requests de referencia deben PASAR; los servicios en stub responderan 501 hasta que cada integrante los implemente.",
+    "description": "Pruebas de aceptacion (API) del Lab 7. Una carpeta por proceso de negocio. Cada request sigue el enfoque BDD: GIVEN (Pre-request), WHEN (Send), THEN (Post-response / Tests).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     { "key": "project_host", "value": "http://localhost:5000" },
-    { "key": "ventas_carrito_id", "value": "" }
+    { "key": "ventas_carrito_id", "value": "" },
+    { "key": "proveedor_id", "value": "" },
+    { "key": "rse_codigo", "value": "" }
   ],
   "item": [
     {
@@ -120,13 +122,129 @@
           }
         },
         {
-          "name": "Listar proveedores (STUB 501)",
+          "name": "Registrar proveedor",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": { "type": "text/javascript", "exec": [
+                "// GIVEN: un nuevo proveedor con nombre y RUC"
+              ] }
+            },
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": [
+                "// THEN: se registra el proveedor (201) con id y estado REGISTRADO",
+                "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                "var j = pm.response.json();",
+                "pm.test('Tiene id', function () {",
+                "  pm.expect(j).to.have.property('id');",
+                "  pm.collectionVariables.set('proveedor_id', j.id);",
+                "});",
+                "pm.test('Nombre correcto', function () { pm.expect(j.nombre).to.eql('Aceros SAC'); });",
+                "pm.test('RUC correcto', function () { pm.expect(j.ruc).to.eql('20123456789'); });",
+                "pm.test('Estado REGISTRADO', function () { pm.expect(j.estado).to.eql('REGISTRADO'); });"
+              ] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Aceros SAC\",\n  \"ruc\": \"20123456789\"\n}" },
+            "url": { "raw": "{{project_host}}/api/proveedores", "host": [ "{{project_host}}" ], "path": [ "api", "proveedores" ] }
+          }
+        },
+        {
+          "name": "Evaluar proveedor",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": { "type": "text/javascript", "exec": [
+                "// GIVEN: un proveedor registrado (proveedor_id)"
+              ] }
+            },
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": [
+                "// THEN: se evalua el proveedor (200) con puntaje y estado EVALUADO",
+                "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                "var j = pm.response.json();",
+                "pm.test('Id coincide', function () {",
+                "  pm.expect(j.id).to.eql(pm.collectionVariables.get('proveedor_id'));",
+                "});",
+                "pm.test('Puntaje = 85', function () { pm.expect(j.puntaje).to.eql(85); });",
+                "pm.test('Estado EVALUADO', function () { pm.expect(j.estado).to.eql('EVALUADO'); });"
+              ] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"puntaje\": 85\n}" },
+            "url": { "raw": "{{project_host}}/api/proveedores/{{proveedor_id}}/evaluar", "host": [ "{{project_host}}" ], "path": [ "api", "proveedores", "{{proveedor_id}}", "evaluar" ] }
+          }
+        },
+        {
+          "name": "Aprobar proveedor",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": { "type": "text/javascript", "exec": [
+                "// GIVEN: un proveedor evaluado con puntaje >= 70"
+              ] }
+            },
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": [
+                "// THEN: se aprueba el proveedor (200) con estado APROBADO",
+                "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                "var j = pm.response.json();",
+                "pm.test('Estado APROBADO', function () { pm.expect(j.estado).to.eql('APROBADO'); });"
+              ] }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": { "raw": "{{project_host}}/api/proveedores/{{proveedor_id}}/aprobar", "host": [ "{{project_host}}" ], "path": [ "api", "proveedores", "{{proveedor_id}}", "aprobar" ] }
+          }
+        },
+        {
+          "name": "Consultar proveedor",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": { "type": "text/javascript", "exec": [
+                "// GIVEN: un proveedor aprobado (proveedor_id)"
+              ] }
+            },
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": [
+                "// THEN: devuelve el proveedor (200) con el mismo id y estado APROBADO",
+                "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                "var j = pm.response.json();",
+                "pm.test('Id coincide', function () {",
+                "  pm.expect(j.id).to.eql(pm.collectionVariables.get('proveedor_id'));",
+                "});",
+                "pm.test('Estado APROBADO', function () { pm.expect(j.estado).to.eql('APROBADO'); });"
+              ] }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{project_host}}/api/proveedores/{{proveedor_id}}", "host": [ "{{project_host}}" ], "path": [ "api", "proveedores", "{{proveedor_id}}" ] }
+          }
+        },
+        {
+          "name": "Listar proveedores",
           "event": [
             {
               "listen": "test",
               "script": { "type": "text/javascript", "exec": [
-                "// THEN (esperado hasta implementar): 501 Not Implemented",
-                "pm.test('Status code is 501 (pendiente)', function () { pm.response.to.have.status(501); });"
+                "// THEN: devuelve la lista (200) con al menos un proveedor",
+                "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                "pm.test('Lista no vacia', function () { pm.expect(pm.response.json().length).to.be.above(0); });"
               ] }
             }
           ],
@@ -220,7 +338,7 @@
                 "// THEN: se formula la iniciativa (201) con codigo y estado FORMULADA",
                 "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
                 "var j = pm.response.json();",
-                "pm.test('Tiene codigo', function () { pm.expect(j).to.have.property('codigo'); });",
+                "pm.test('Tiene codigo', function () { pm.expect(j).to.have.property('codigo'); pm.collectionVariables.set('rse_codigo', j.codigo); });",
                 "pm.test('Estado FORMULADA', function () { pm.expect(j.estado).to.eql('FORMULADA'); });"
               ] }
             }
@@ -230,6 +348,97 @@
             "header": [ { "key": "Content-Type", "value": "application/json" } ],
             "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Reciclaje CD Lima\",\n  \"tipo\": \"RECICLAJE\",\n  \"requierePresupuesto\": true,\n  \"presupuestoSolicitado\": 5000\n}" },
             "url": { "raw": "{{project_host}}/api/iniciativas", "host": [ "{{project_host}}" ], "path": [ "api", "iniciativas" ] }
+          }
+        },
+        {
+          "name": "Evaluar iniciativa (comite)",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [ "// GIVEN: una iniciativa FORMULADA que requiere presupuesto (rse_codigo)" ] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "// THEN: se aprueba (200) y el estado pasa a APROBADA",
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "var j = pm.response.json();",
+              "pm.test('Estado APROBADA', function () { pm.expect(j.estado).to.eql('APROBADA'); });",
+              "pm.test('Presupuesto aprobado > 0', function () { pm.expect(j.presupuestoAprobado).to.be.above(0); });"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"aprobada\": true,\n  \"presupuestoAprobado\": 4000\n}" },
+            "url": { "raw": "{{project_host}}/api/iniciativas/{{rse_codigo}}/evaluacion", "host": [ "{{project_host}}" ], "path": [ "api", "iniciativas", "{{rse_codigo}}", "evaluacion" ] }
+          }
+        },
+        {
+          "name": "Agregar indicador (KPI)",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [ "// GIVEN: una iniciativa aprobada" ] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "// THEN: se agrega el KPI (201) y aparece en la lista de indicadores",
+              "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+              "pm.test('Tiene 1 indicador', function () { pm.expect(pm.response.json().indicadores.length).to.eql(1); });"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Residuos reciclados\",\n  \"unidad\": \"ton\",\n  \"meta\": 100\n}" },
+            "url": { "raw": "{{project_host}}/api/iniciativas/{{rse_codigo}}/indicadores", "host": [ "{{project_host}}" ], "path": [ "api", "iniciativas", "{{rse_codigo}}", "indicadores" ] }
+          }
+        },
+        {
+          "name": "Registrar evidencia de avance",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [ "// GIVEN: una iniciativa en ejecucion" ] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "// THEN: se registra la evidencia (201)",
+              "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+              "pm.test('Tiene 1 evidencia', function () { pm.expect(pm.response.json().evidencias.length).to.eql(1); });"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"descripcion\": \"Campana tienda A\",\n  \"porcentajeAvance\": 40\n}" },
+            "url": { "raw": "{{project_host}}/api/iniciativas/{{rse_codigo}}/evidencias", "host": [ "{{project_host}}" ], "path": [ "api", "iniciativas", "{{rse_codigo}}", "evidencias" ] }
+          }
+        },
+        {
+          "name": "Generar reporte de sostenibilidad",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [ "// GIVEN: una iniciativa aprobada con avances" ] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "// THEN: se genera el reporte (201) y el estado pasa a REPORTADA",
+              "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+              "var j = pm.response.json();",
+              "pm.test('Estado REPORTADA', function () { pm.expect(j.estado).to.eql('REPORTADA'); });",
+              "pm.test('Reporte generado', function () { pm.expect(j.reporte).to.not.be.null; });"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"resumen\": \"Avance Q1 de la iniciativa de reciclaje\"\n}" },
+            "url": { "raw": "{{project_host}}/api/iniciativas/{{rse_codigo}}/reporte", "host": [ "{{project_host}}" ], "path": [ "api", "iniciativas", "{{rse_codigo}}", "reporte" ] }
+          }
+        },
+        {
+          "name": "Aprobar publicacion del reporte",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [ "// GIVEN: una iniciativa con reporte generado" ] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "// THEN: se publica (200) y el estado final es PUBLICADA",
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "var j = pm.response.json();",
+              "pm.test('Estado PUBLICADA', function () { pm.expect(j.estado).to.eql('PUBLICADA'); });",
+              "pm.test('Reporte aprobado para publicacion', function () { pm.expect(j.reporte.aprobadoPublicacion).to.be.true; });"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"urlPublicacion\": \"https://sodimac.com/rse/2026\"\n}" },
+            "url": { "raw": "{{project_host}}/api/iniciativas/{{rse_codigo}}/reporte/publicacion", "host": [ "{{project_host}}" ], "path": [ "api", "iniciativas", "{{rse_codigo}}", "reporte", "publicacion" ] }
           }
         }
       ]
