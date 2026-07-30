@@ -25,7 +25,11 @@ def _serializar(orden) -> dict:
         "proveedorId": orden.proveedor_id,
         "estado": orden.estado.value,
         "total": orden.total,
-        "lineas": [_serializar_linea(linea.__dict__) for linea in orden.lineas],
+        "lineas": [_serializar_linea({
+            "sku": linea.sku,
+            "cantidad": linea.cantidad,
+            "precio_unitario": linea.precio_unitario,
+        }) for linea in orden.lineas],
     }
 
 
