@@ -1,0 +1,182 @@
+@startuml
+!define RECTANGLE class
+
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor<<entity>> #FFF3E0
+    BackgroundColor<<factory>> #E3F2FD
+    BackgroundColor<<repository>> #F3E5F5
+    BackgroundColor<<enum>> #FCE4EC
+    BackgroundColor<<exception>> #FFEBEE
+    BackgroundColor<<service>> #E0F2F1
+    BorderColor<<entity>> #E65100
+    BorderColor<<factory>> #1565C0
+    BorderColor<<repository>> #6A1B9A
+    BorderColor<<enum>> #C2185B
+    BorderColor<<exception>> #C62828
+    BorderColor<<service>> #00695C
+    ArrowColor #616161
+}
+skinparam packageStyle rectangle
+skinparam backgroundColor #FAFAFA
+
+package "BOUNDED CONTEXT: reabastecimiento" {
+
+    package "DOMINIO: Proveedores (src/reabastecimiento/domain/proveedor.py)" {
+        
+        package "Entidad Raíz (Aggregate Root)" {
+            class "Proveedor\n<<entity>>" as Proveedor {
+                + id: str
+                + nombre: str
+                + ruc: str
+                + puntaje: int = 0
+                + estado: EstadoProveedor = REGISTRADO
+                --
+                + evaluar(puntaje: int, observaciones: str)
+                + aprobar()
+                + rechazar()
+            }
+        }
+        
+        package "Enumeración de Estado" {
+            enum "EstadoProveedor\n<<enum>>" as EstadoProveedor {
+                + REGISTRADO
+                + EVALUADO
+                + APROBADO
+                + RECHAZADO
+            }
+        }
+        
+        package "Fábrica (Factory)" {
+            class "ProveedorFabrica\n<<factory>>" as ProveedorFabrica {
+                + crear(nombre: str, ruc: str) -> Proveedor
+            }
+        }
+        
+        package "Interfaz de Repositorio (Port)" {
+            interface "IProveedorRepositorio\n<<repository>>" as IProveedorRepositorio {
+                + adicionar(proveedor: Proveedor)
+                + buscar(proveedor_id: str) -> Proveedor | None
+                + listar() -> List[Proveedor]
+                + actualizar(proveedor: Proveedor)
+            }
+        }
+        
+        package "Excepción de Dominio" {
+            class "ErrorDominio\n<<exception>>" as ErrorDominio {
+                + mensaje: str
+            }
+            
+            class "ProveedorNoEncontrado\n<<exception>>" as ProveedorNoEncontrado
+        }
+    }
+    
+    package "APLICACIÓN (src/reabastecimiento/application/proveedor_servicio.py)" {
+        class "ProveedorServicio\n<<service>>" as ProveedorServicio {
+            + registrar_proveedor(nombre: str, ruc: str) -> Proveedor
+            + evaluar_proveedor(proveedor_id: str, puntaje: int, obs: str)
+            + aprobar_proveedor(proveedor_id: str)
+            + rechazar_proveedor(proveedor_id: str)
+            + listar_proveedores() -> List[Proveedor]
+            + obtener_proveedor(proveedor_id: str) -> Proveedor
+        }
+    }
+    
+    package "INFRAESTRUCTURA (src/reabastecimiento/infrastructure/)" {
+        package "ORM" {
+            class "ProveedorModel\n<<infrastructure>>" as ProveedorModel {
+                + id: str (PK)
+                + nombre: str
+                + ruc: str (UNIQUE)
+                + puntaje: int
+                + estado: str
+                --
+                + to_domain() -> Proveedor
+                + from_domain(proveedor: Proveedor)
+            }
+        }
+        
+        package "Repositorio en Memoria (Fake/Stub)" {
+            class "ProveedorRepositorioMemoria\n<<infrastructure>>" as ProveedorMemoria {
+                + _storage: Dict[str, Proveedor]
+                --
+                + adicionar(proveedor: Proveedor)
+                + buscar(proveedor_id: str) -> Proveedor | None
+                + listar() -> List[Proveedor]
+                + actualizar(proveedor: Proveedor)
+            }
+        }
+        
+        package "Repositorio PostgreSQL (SQLAlchemy)" {
+            class "ProveedorRepositorioSQLAlchemy\n<<infrastructure>>" as ProveedorSQL {
+                + _session: Session
+                --
+                + adicionar(proveedor: Proveedor)
+                + buscar(proveedor_id: str) -> Proveedor | None
+                + listar() -> List[Proveedor]
+                + actualizar(proveedor: Proveedor)
+            }
+        }
+    }
+    
+    package "PRESENTACIÓN (src/reabastecimiento/presentation/proveedores_controller.py)" {
+        class "ProveedoresController\n<<presentation>>" as ProveedoresController {
+            + bp: Blueprint
+            --
+            + POST   /api/proveedores
+            + GET    /api/proveedores
+            + GET    /api/proveedores/<id>
+            + PUT    /api/proveedores/<id>/evaluar
+            + PUT    /api/proveedores/<id>/aprobar
+            + PUT    /api/proveedores/<id>/rechazar
+        }
+    }
+}
+
+' ===== RELACIONES =====
+
+' Domain layer
+ProveedorFabrica --> Proveedor : crea
+Proveedor *-- EstadoProveedor : tiene estado
+Proveedor ..> ErrorDominio : lanza validaciones
+
+ProveedorServicio ..> IProveedorRepositorio : depende (DIP)
+ProveedorServicio --> Proveedor : orquesta
+ProveedorServicio --> ProveedorFabrica : usa
+ProveedorServicio --> ProveedorNoEncontrado : lanza
+
+ErrorDominio <|-- ProveedorNoEncontrado
+
+' Infrastructure implements Domain interfaces
+IProveedorRepositorio ^.. ProveedorMemoria : implementa\n(REPO_BACKEND=memoria)
+IProveedorRepositorio ^.. ProveedorSQL : implementa\n(REPO_BACKEND=sqlalchemy)
+
+ProveedorSQL --> ProveedorModel : mapea a/desde
+ProveedorMemoria ..> Proveedor : manipula directo
+ProveedorModel --> Proveedor : to_domain()\nfrom_domain()
+
+' Controller uses Application Service
+ProveedoresController --> ProveedorServicio : usa
+
+' Configuration
+note right of IProveedorRepositorio
+  CONFIGURACIÓN:
+  REPO_BACKEND=memoria (default, tests)
+  REPO_BACKEND=sqlalchemy (PostgreSQL)
+end note
+
+note right of ProveedorServicio
+  INVERSIÓN DE DEPENDENCIAS (DIP):
+  ProveedorServicio depende de la
+  INTERFAZ IProveedorRepositorio (Domain).
+  Infrastructure implementa la interfaz.
+end note
+
+note right of Proveedor
+  REGLAS DE NEGOCIO EN ENTIDAD:
+  • evaluar(): puntaje 0-100, cambia a EVALUADO
+  • aprobar(): solo si EVALUADO y puntaje >= 70
+  • rechazar(): solo si EVALUADO
+end note
+
+@enduml

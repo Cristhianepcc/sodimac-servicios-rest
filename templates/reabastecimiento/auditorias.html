@@ -1,0 +1,40 @@
+{% extends "dashboard.html" %}
+{% block title %}Auditorias - Reabastecimiento{% endblock %}
+{% block menu %}
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.proveedores') }}">Proveedores</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.ordenes_compra') }}">Ordenes de Compra</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.recepciones') }}">Recepciones</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.distribucion') }}">Distribucion</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.almacen') }}">Almacen</a>
+<a class="nav-link active" href="{{ url_for('reabastecimiento_web.auditorias') }}">Auditorias</a>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Auditorias</h1>
+  <div>
+    <button class="btn btn-outline-primary btn-sm" id="btn-ver-auditorias">Auditorias</button>
+    <button class="btn btn-primary btn-sm" id="btn-ver-movimientos">Movimientos</button>
+  </div>
+</div>
+<div id="alerta" class="alert d-none"></div>
+<div id="vista-auditorias" class="table-responsive">
+  <h3 class="h5 mb-3">Auditorias</h3>
+  <button class="btn btn-outline-primary btn-sm mb-3" id="btn-nueva-auditoria">Nueva Auditoria</button>
+  <table class="table align-middle">
+    <thead><tr><th>ID</th><th>SKU</th><th>Tipo</th><th>Fecha</th><th>Estado</th><th>Accion</th></tr></thead>
+    <tbody id="auditorias"></tbody>
+  </table>
+</div>
+<div id="vista-movimientos" class="table-responsive d-none">
+  <h3 class="h5 mb-3">Movimientos de Stock</h3>
+  <button class="btn btn-outline-primary btn-sm mb-3" id="btn-nuevo-movimiento">Nuevo Movimiento</button>
+  <table class="table align-middle">
+    <thead><tr><th>ID</th><th>SKU</th><th>Tipo</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr></thead>
+    <tbody id="movimientos"></tbody>
+  </table>
+</div>
+<section id="detalle" class="detail-panel d-none"></section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/reabastecimiento.js') }}"></script>
+{% endblock %}

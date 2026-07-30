@@ -1,0 +1,27 @@
+{% extends "dashboard.html" %}
+{% block title %}Ordenes de Compra - Reabastecimiento{% endblock %}
+{% block menu %}
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.proveedores') }}">Proveedores</a>
+<a class="nav-link active" href="{{ url_for('reabastecimiento_web.ordenes_compra') }}">Ordenes de Compra</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.recepciones') }}">Recepciones</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.distribucion') }}">Distribucion</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.almacen') }}">Almacen</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.auditorias') }}">Auditorias</a>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Ordenes de Compra</h1>
+  <button class="btn btn-primary btn-sm" id="btn-nueva">Nueva Orden</button>
+</div>
+<div id="alerta" class="alert d-none"></div>
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead><tr><th>ID</th><th>Proveedor</th><th>Fecha</th><th>Estado</th><th>Total</th><th>Accion</th></tr></thead>
+    <tbody id="ordenes"></tbody>
+  </table>
+</div>
+<section id="detalle" class="detail-panel d-none"></section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/reabastecimiento.js') }}"></script>
+{% endblock %}

@@ -6,6 +6,8 @@
     <div class="sidebar-user">{{ session.usuario.nombre_usuario }}<span>{{ session.usuario.rol }}</span></div>
     <nav class="nav flex-column gap-1">
       {% block menu %}{% endblock %}
+      <hr class="my-2">
+      <a class="nav-link" href="{{ url_for('reabastecimiento_web.proveedores') }}">Reabastecimiento</a>
       <a class="nav-link text-danger" href="{{ url_for('postventa_web.logout') }}">Cerrar Sesion</a>
     </nav>
   </aside>

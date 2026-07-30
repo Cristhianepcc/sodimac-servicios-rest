@@ -1,75 +1,57 @@
-"""Servicio de Órdenes de Compra (Reabastecimiento)."""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request
 
-from src.reabastecimiento.application.ordenes_compra_servicio import OrdenCompraServicio
+from src.reabastecimiento.application.orden_compra_servicio import OrdenCompraServicio
+from src.reabastecimiento.domain.orden_compra import OrdenCompra
 
 bp = Blueprint("reabastecimiento_ordenes_compra", __name__, url_prefix="/api/ordenes-compra")
 
-_servicio = OrdenCompraServicio
 
-
-def _serializar_linea(linea: dict) -> dict:
+def _serializar(o: OrdenCompra) -> dict:
     return {
-        "sku": linea["sku"],
-        "cantidad": linea["cantidad"],
-        "precioUnitario": linea["precio_unitario"],
-        "subtotal": linea["cantidad"] * linea["precio_unitario"],
-    }
-
-
-def _serializar(orden) -> dict:
-    return {
-        "id": orden.id,
-        "proveedorId": orden.proveedor_id,
-        "estado": orden.estado.value,
-        "total": orden.total,
-        "lineas": [_serializar_linea({
-            "sku": linea.sku,
-            "cantidad": linea.cantidad,
-            "precio_unitario": linea.precio_unitario,
-        }) for linea in orden.lineas],
+        "id": o.id,
+        "proveedorId": o.proveedor_id,
+        "fechaEmision": o.fecha_emision,
+        "estado": o.estado.value,
+        "lineas": [
+            {"sku": l.sku, "cantidad": l.cantidad, "precioUnitario": l.precio_unitario, "subtotal": l.subtotal}
+            for l in o.lineas
+        ],
+        "total": o.total,
     }
 
 
 @bp.post("")
 def generar():
-    datos = request.get_json(silent=True) or {}
-    lineas = [
-        {
-            "sku": item.get("sku", ""),
-            "cantidad": int(item.get("cantidad", 0)),
-            "precio_unitario": float(item.get("precioUnitario", item.get("precio_unitario", 0))),
-        }
-        for item in datos.get("lineas", [])
-    ]
-    orden = _servicio().crear_orden_compra(
-        proveedor_id=datos.get("proveedorId", ""),
-        lineas=lineas,
+    d = request.get_json(silent=True) or {}
+    o = OrdenCompraServicio().generar(
+        proveedor_id=d.get("proveedorId", ""),
+        lineas=d.get("lineas", []),
     )
-    return jsonify(_serializar(orden)), 201
+    return jsonify(_serializar(o)), 201
 
 
 @bp.get("/<orden_id>")
 def consultar(orden_id: str):
-    orden = _servicio().obtener_orden_compra(orden_id)
-    return jsonify(_serializar(orden)), 200
+    return jsonify(_serializar(OrdenCompraServicio().obtener(orden_id))), 200
+
+
+@bp.get("")
+def listar():
+    return jsonify([_serializar(o) for o in OrdenCompraServicio().listar()]), 200
 
 
 @bp.put("/<orden_id>/autorizar")
 def autorizar(orden_id: str):
-    orden = _servicio().autorizar_orden_compra(orden_id)
-    return jsonify(_serializar(orden)), 200
+    return jsonify(_serializar(OrdenCompraServicio().autorizar(orden_id))), 200
 
 
 @bp.delete("/<orden_id>")
 def cancelar(orden_id: str):
-    orden = _servicio().cancelar_orden_compra(orden_id)
-    return jsonify(_serializar(orden)), 200
+    return jsonify(_serializar(OrdenCompraServicio().cancelar(orden_id))), 200
 
 
 @bp.post("/<orden_id>/enviar")
 def enviar(orden_id: str):
-    orden = _servicio().enviar_orden_compra(orden_id)
-    return jsonify(_serializar(orden)), 200
+    return jsonify(_serializar(OrdenCompraServicio().enviar(orden_id))), 200

@@ -1,47 +1,67 @@
-"""STUB — Servicio de Proveedores (Reabastecimiento). Responsable: Integrante 2.
+"""Controlador REST del servicio de Proveedores (Reabastecimiento).
 
-Endpoints a implementar (Práctica 4 §5.1):
+    POST /api/proveedores              → registrar proveedor
     GET  /api/proveedores              → listar proveedores
     GET  /api/proveedores/<id>         → consultar proveedor
     POST /api/proveedores/<id>/evaluar → evaluar proveedor
     PUT  /api/proveedores/<id>/aprobar → aprobar proveedor
     PUT  /api/proveedores/<id>/rechazar→ rechazar proveedor
-
-Reemplazar los `no_implementado(...)` por la implementación real siguiendo el
-patrón del servicio de referencia `inventario` (dominio → aplicación → infra).
 """
 from __future__ import annotations
 
-from flask import Blueprint
+from flask import Blueprint, jsonify, request
 
-from src.shared.stub import no_implementado
+from src.reabastecimiento.application.proveedor_servicio import ProveedorServicio
+from src.reabastecimiento.domain.proveedor import Proveedor
 
 bp = Blueprint("reabastecimiento_proveedores", __name__, url_prefix="/api/proveedores")
 
-_SVC = "Proveedores"
-_INT = "Integrante 2"
+
+def _serializar(p: Proveedor) -> dict:
+    return {
+        "id": p.id,
+        "nombre": p.nombre,
+        "ruc": p.ruc,
+        "puntaje": p.puntaje,
+        "estado": p.estado.value,
+    }
+
+
+@bp.post("")
+def registrar():
+    d = request.get_json(silent=True) or {}
+    p = ProveedorServicio().registrar(
+        nombre=d.get("nombre", ""),
+        ruc=d.get("ruc", ""),
+    )
+    return jsonify(_serializar(p)), 201
 
 
 @bp.get("")
 def listar():
-    return no_implementado(_SVC, _INT)
+    proveedores = ProveedorServicio().listar()
+    return jsonify([_serializar(p) for p in proveedores]), 200
 
 
 @bp.get("/<proveedor_id>")
 def consultar(proveedor_id: str):
-    return no_implementado(_SVC, _INT)
+    return jsonify(_serializar(ProveedorServicio().obtener(proveedor_id))), 200
 
 
 @bp.post("/<proveedor_id>/evaluar")
 def evaluar(proveedor_id: str):
-    return no_implementado(_SVC, _INT)
+    d = request.get_json(silent=True) or {}
+    p = ProveedorServicio().evaluar(proveedor_id, int(d.get("puntaje", 0)))
+    return jsonify(_serializar(p)), 200
 
 
 @bp.put("/<proveedor_id>/aprobar")
 def aprobar(proveedor_id: str):
-    return no_implementado(_SVC, _INT)
+    p = ProveedorServicio().aprobar(proveedor_id)
+    return jsonify(_serializar(p)), 200
 
 
 @bp.put("/<proveedor_id>/rechazar")
 def rechazar(proveedor_id: str):
-    return no_implementado(_SVC, _INT)
+    p = ProveedorServicio().rechazar(proveedor_id)
+    return jsonify(_serializar(p)), 200
