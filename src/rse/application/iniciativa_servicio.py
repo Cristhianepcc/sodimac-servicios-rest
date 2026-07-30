@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from datetime import date
 
+from src.rse.domain.evaluacion_metas import EvaluadorDeMetas, ResultadoEvaluacion
 from src.rse.domain.iniciativa import (
     EvidenciaAvance,
     IndicadorKPI,
@@ -99,6 +100,18 @@ class IniciativaServicio:
         )
         self._repo.actualizar(iniciativa)
         return iniciativa
+
+    def evaluar_metas(self, codigo: str, tolerancia: float = 0.9) -> ResultadoEvaluacion:
+        """Gateway «¿Metas cumplidas?» del proceso BPM.
+
+        Delega la política al servicio de dominio y persiste el veredicto en el
+        agregado, que es quien conserva el estado.
+        """
+        iniciativa = self.obtener(codigo)
+        resultado = EvaluadorDeMetas(tolerancia).evaluar(iniciativa)
+        iniciativa.metas_cumplidas = resultado.cumplidas
+        self._repo.actualizar(iniciativa)
+        return resultado
 
     def generar_reporte(self, codigo: str, resumen: str = "") -> IniciativaRSE:
         iniciativa = self.obtener(codigo)

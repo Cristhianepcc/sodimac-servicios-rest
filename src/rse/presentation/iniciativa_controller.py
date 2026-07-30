@@ -136,3 +136,21 @@ def aprobar_publicacion(codigo: str):
         codigo=codigo, url_publicacion=d.get("urlPublicacion", "")
     )
     return jsonify(_serializar(i)), 200
+
+
+@bp.get("/<codigo>/cumplimiento")
+def evaluar_cumplimiento(codigo: str):
+    """Evaluar el cumplimiento de metas (gateway «¿Metas cumplidas?»)."""
+    tolerancia = request.args.get("tolerancia", default=0.9, type=float)
+    r = IniciativaServicio().evaluar_metas(codigo, tolerancia=tolerancia)
+    return jsonify(
+        {
+            "codigo": codigo,
+            "cumplidas": r.cumplidas,
+            "porcentajeGlobal": r.porcentaje_global,
+            "indicadoresCumplidos": r.indicadores_cumplidos,
+            "indicadoresTotales": r.indicadores_totales,
+            "rezagados": list(r.rezagados),
+            "requiereAccionesCorrectivas": r.requiere_acciones_correctivas,
+        }
+    ), 200

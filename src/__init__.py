@@ -18,6 +18,7 @@ from flask import Flask, jsonify
 
 from config import Config
 from src.shared.http import registrar_manejadores_error
+from src.shared.openapi import registrar_openapi
 
 # Procesos de negocio (bounded contexts). Agregar aquí un nuevo proceso solo si
 # se crea un proceso de negocio nuevo (no hace falta para agregar servicios).
@@ -52,6 +53,8 @@ def create_app() -> Flask:
 
     registrar_manejadores_error(app)
     _autoregistrar_blueprints(app)
+    # Después del autoregistro: la spec se deriva de las rutas ya montadas.
+    registrar_openapi(app)
 
     @app.get("/health")
     def health():
