@@ -164,6 +164,48 @@ class IniciativaFabrica:
             estado=EstadoIniciativa.FORMULADA,
         )
 
+    @staticmethod
+    def desde_convocatoria(
+        codigo: str,
+        nombre: str,
+        tipo: str,
+        presupuesto_aprobado: float = 0.0,
+        requisitos: str = "",
+    ) -> IniciativaRSE:
+        """Reconstruye una iniciativa a partir de la convocatoria del proceso BPM.
+
+        A diferencia de `crear()`, el **código lo impone Bonita** (es la clave
+        de correlación entre la instancia del proceso y el agregado de este
+        servicio) y la iniciativa llega ya aprobada: el proceso solo publica la
+        convocatoria después de pasar el gateway de aprobación del comité.
+        """
+        if not codigo or not codigo.strip():
+            raise ErrorDominio("La convocatoria debe traer el código de la iniciativa.")
+        if not nombre or not nombre.strip():
+            raise ErrorDominio("La convocatoria debe traer el nombre de la iniciativa.")
+        if presupuesto_aprobado <= 0:
+            raise ErrorDominio(
+                "Una convocatoria proviene de una iniciativa aprobada: "
+                "el presupuesto debe ser mayor que 0."
+            )
+        try:
+            tipo_enum = TipoIniciativa(tipo)
+        except ValueError:
+            validos = ", ".join(t.value for t in TipoIniciativa)
+            raise ErrorDominio(f"Tipo inválido '{tipo}'. Permitidos: {validos}.")
+
+        return IniciativaRSE(
+            codigo=codigo.strip(),
+            nombre=nombre.strip(),
+            tipo=tipo_enum,
+            descripcion=requisitos,
+            requiere_presupuesto=True,
+            presupuesto_solicitado=presupuesto_aprobado,
+            presupuesto_aprobado=presupuesto_aprobado,
+            estado=EstadoIniciativa.APROBADA,
+            aprobada=True,
+        )
+
 
 # --- Puerto (interfaz de repositorio) ---
 

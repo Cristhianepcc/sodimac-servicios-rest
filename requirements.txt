@@ -2,3 +2,8 @@ Flask==3.0.3
 SQLAlchemy==2.0.34
 psycopg[binary]>=3.2.10
 python-dotenv==1.0.1
+# Mensajeria asincrona con RabbitMQ (integracion con los procesos BPM)
+pika==1.4.2
+# Documentacion OpenAPI 3 / Swagger UI
+apispec==6.10.0
+apispec-webframeworks==1.2.0
