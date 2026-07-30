@@ -159,3 +159,24 @@ class TestReporteYPublicacion:
         assert ini.reporte.aprobado_publicacion is True
         assert ini.reporte.url_publicacion == "http://sodimac.pe/rse"
         assert ini.estado is EstadoIniciativa.PUBLICADA
+
+
+def test_la_evaluacion_conserva_el_comentario_del_comite():
+    """El comentario del contrato `teval` se persiste en el agregado.
+
+    Antes viajaba desde el controlador hasta `evaluar()` y se descartaba
+    silenciosamente, así que la justificación del comité se perdía.
+    """
+    ini = IniciativaFabrica.crear(
+        "Reciclaje de mermas", "RECICLAJE", requiere_presupuesto=True,
+        presupuesto_solicitado=15000.0,
+    )
+    ini.evaluar(True, 15000.0, "Aprobada con presupuesto reducido por el comité.")
+    assert ini.comentario_evaluacion == "Aprobada con presupuesto reducido por el comité."
+
+
+def test_el_comentario_tambien_se_conserva_si_se_rechaza():
+    ini = IniciativaFabrica.crear("Voluntariado", "VOLUNTARIADO")
+    ini.evaluar(False, 0.0, "Sin alineación con los objetivos del año.")
+    assert ini.comentario_evaluacion == "Sin alineación con los objetivos del año."
+    assert ini.estado == EstadoIniciativa.ARCHIVADA

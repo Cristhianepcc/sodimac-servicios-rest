@@ -39,6 +39,10 @@ _TIPOS = {
     "default": {"type": "string"},
 }
 
+_JSON = "application/json"
+_REF_ERROR = "#/components/schemas/Error"
+_ESQUEMA_OBJETO = {"type": "object"}
+
 _METODOS = ("get", "post", "put", "patch", "delete")
 _RUTAS_EXCLUIDAS = {"/openapi.json", "/docs"}
 
@@ -101,7 +105,7 @@ def _respuestas(metodo: str, tiene_params: bool) -> dict[str, Any]:
     resp: dict[str, Any] = {
         exito: {
             "description": "Operación exitosa.",
-            "content": {"application/json": {"schema": {"type": "object"}}},
+            "content": {_JSON: {"schema": _ESQUEMA_OBJETO}},
         },
         "400": {"$ref": "#/components/responses/ErrorDominio"},
     }
@@ -112,37 +116,56 @@ def _respuestas(metodo: str, tiene_params: bool) -> dict[str, Any]:
     return resp
 
 
-def construir_spec(app: Flask) -> dict[str, Any]:
-    """Genera el documento OpenAPI 3.0.3 a partir de las rutas registradas."""
+def _operacion(regla, vista, metodo: str, params: list[dict[str, Any]]) -> dict[str, Any]:
+    """Arma el objeto Operation de OpenAPI para un método de una ruta."""
+    operacion: dict[str, Any] = {
+        "tags": [_contexto_de(regla)],
+        "operationId": f"{metodo}_{regla.endpoint}".replace(".", "_"),
+        "responses": _respuestas(metodo, bool(params)),
+    }
+    if resumen := _resumen(vista):
+        operacion["summary"] = resumen
+    if params:
+        operacion["parameters"] = params
+    if metodo in ("post", "put", "patch"):
+        operacion["requestBody"] = {
+            "required": True,
+            "content": {_JSON: {"schema": _ESQUEMA_OBJETO}},
+        }
+    return operacion
+
+
+def _es_documentable(regla, ruta: str) -> bool:
+    return regla.endpoint != "static" and ruta not in _RUTAS_EXCLUIDAS
+
+
+def _metodos_de(regla) -> list[str]:
+    return sorted(
+        m.lower() for m in (regla.methods or set()) if m.lower() in _METODOS
+    )
+
+
+def _construir_paths(app: Flask) -> dict[str, dict[str, Any]]:
+    """Recorre el url_map y produce el objeto `paths` de la especificación."""
     paths: dict[str, dict[str, Any]] = {}
 
     for regla in app.url_map.iter_rules():
         ruta = _a_ruta_openapi(regla.rule)
-        if regla.endpoint == "static" or ruta in _RUTAS_EXCLUIDAS:
+        if not _es_documentable(regla, ruta):
             continue
 
         vista = app.view_functions.get(regla.endpoint)
         params = _parametros(regla)
-        metodos = [m.lower() for m in (regla.methods or set()) if m.lower() in _METODOS]
 
-        for metodo in sorted(metodos):
-            operacion: dict[str, Any] = {
-                "tags": [_contexto_de(regla)],
-                "operationId": f"{metodo}_{regla.endpoint}".replace(".", "_"),
-                "responses": _respuestas(metodo, bool(params)),
-            }
-            if resumen := _resumen(vista):
-                operacion["summary"] = resumen
-            if params:
-                operacion["parameters"] = params
-            if metodo in ("post", "put", "patch"):
-                operacion["requestBody"] = {
-                    "required": True,
-                    "content": {
-                        "application/json": {"schema": {"type": "object"}}
-                    },
-                }
-            paths.setdefault(ruta, {})[metodo] = operacion
+        for metodo in _metodos_de(regla):
+            paths.setdefault(ruta, {})[metodo] = _operacion(regla, vista, metodo, params)
+
+    return paths
+
+
+def construir_spec(app: Flask) -> dict[str, Any]:
+    """Genera el documento OpenAPI 3.0.3 a partir de las rutas registradas."""
+    paths = _construir_paths(app)
 
     return {
         "openapi": "3.0.3",
@@ -189,19 +212,19 @@ def construir_spec(app: Flask) -> dict[str, Any]:
                 "ErrorDominio": {
                     "description": "Violación de una regla de negocio.",
                     "content": {
-                        "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
+                        _JSON: {"schema": {"$ref": _REF_ERROR}}
                     },
                 },
                 "NoEncontrado": {
                     "description": "El recurso solicitado no existe.",
                     "content": {
-                        "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
+                        _JSON: {"schema": {"$ref": _REF_ERROR}}
                     },
                 },
                 "Conflicto": {
                     "description": "Conflicto de estado del recurso.",
                     "content": {
-                        "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
+                        _JSON: {"schema": {"$ref": _REF_ERROR}}
                     },
                 },
             },

@@ -5,6 +5,7 @@ Cubren la regla del gateway «¿Metas cumplidas?» del proceso BPM.
 from __future__ import annotations
 
 import pytest
+from dataclasses import FrozenInstanceError
 
 from src.rse.domain.evaluacion_metas import EvaluadorDeMetas
 from src.rse.domain.iniciativa import IndicadorKPI, IniciativaFabrica
@@ -102,5 +103,5 @@ def test_el_resultado_es_inmutable():
     r = EvaluadorDeMetas().evaluar(
         _iniciativa(IndicadorKPI("KPI", "u", 0.0, 100.0, 100.0))
     )
-    with pytest.raises(Exception):
+    with pytest.raises(FrozenInstanceError):
         r.cumplidas = False  # type: ignore[misc]

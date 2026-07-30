@@ -43,6 +43,13 @@ def _autoregistrar_blueprints(app: Flask) -> None:
 
 
 def create_app() -> Flask:
+    # Nota sobre CSRF (SonarQube python:S4502): esta es una API REST sin estado.
+    # No emite cookies de sesión ni usa autenticación basada en cookies, así que
+    # un tercero no puede hacer que el navegador de un usuario firme una petición
+    # en su nombre: no existe la credencial ambiental que CSRF explota. Sus
+    # clientes son los conectores de Bonita y el worker de eventos, no un
+    # navegador. Añadir CSRFProtect aquí rompería esos clientes sin aportar
+    # seguridad. Si en el futuro se añade login por cookie, hay que revisarlo.
     app = Flask(__name__)
     app.config.from_object(Config)
 
