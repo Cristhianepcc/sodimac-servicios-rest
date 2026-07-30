@@ -1,0 +1,21 @@
+{% extends "dashboard.html" %}
+{% block title %}Mis Reclamos{% endblock %}
+{% block menu %}
+<a class="nav-link" href="{{ url_for('postventa_web.cliente_registrar') }}">Registrar Reclamo</a>
+<a class="nav-link active" href="{{ url_for('postventa_web.cliente_reclamos') }}">Mis Reclamos</a>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Mis Reclamos</h1>
+</div>
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead><tr><th>ID</th><th>Producto</th><th>Estado</th><th>Fecha cierre</th><th>Accion</th></tr></thead>
+    <tbody id="mis-reclamos"></tbody>
+  </table>
+</div>
+<section id="detalle" class="detail-panel d-none"></section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/cliente.js') }}"></script>
+{% endblock %}

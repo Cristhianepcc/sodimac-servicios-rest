@@ -22,7 +22,7 @@ from src.shared.openapi import registrar_openapi
 
 # Procesos de negocio (bounded contexts). Agregar aquí un nuevo proceso solo si
 # se crea un proceso de negocio nuevo (no hace falta para agregar servicios).
-PROCESOS = ["ventas", "reabastecimiento", "servicios_cliente", "postventa", "rse"]
+PROCESOS = ["ventas", "reabastecimiento", "servicios_cliente", "postventa", "rse", "web"]
 
 
 def _autoregistrar_blueprints(app: Flask) -> None:
@@ -43,15 +43,24 @@ def _autoregistrar_blueprints(app: Flask) -> None:
 
 
 def create_app() -> Flask:
-    # Nota sobre CSRF (SonarQube python:S4502): esta es una API REST sin estado.
-    # No emite cookies de sesión ni usa autenticación basada en cookies, así que
-    # un tercero no puede hacer que el navegador de un usuario firme una petición
-    # en su nombre: no existe la credencial ambiental que CSRF explota. Sus
-    # clientes son los conectores de Bonita y el worker de eventos, no un
-    # navegador. Añadir CSRFProtect aquí rompería esos clientes sin aportar
-    # seguridad. Si en el futuro se añade login por cookie, hay que revisarlo.
-    app = Flask(__name__)
+    # ATENCIÓN (SonarQube python:S4502 — protección CSRF).
+    #
+    # Esta app sirve dos cosas a la vez:
+    #   - una API REST sin estado, consumida por los conectores de Bonita y el
+    #     worker de eventos (ahí CSRF no aplica: no hay credencial ambiental);
+    #   - el frontend web de postventa (`src/web`), que SÍ usa sesión por cookie
+    #     (`session["usuario"]`) y formularios POST como `/login`.
+    #
+    # Por el segundo, CSRF sí aplica: un sitio de terceros puede hacer que el
+    # navegador de un usuario autenticado envíe un POST con su cookie. Falta
+    # proteger los formularios de `src/web` (p. ej. CSRFProtect limitado a ese
+    # blueprint, dejando la API fuera para no romper a los conectores).
+    app = Flask(__name__, template_folder="../templates", static_folder="../static")
     app.config.from_object(Config)
+    # TODO(seguridad): `SECRET_KEY` debe venir siempre del entorno. El valor por
+    # defecto firma las cookies de sesión y está en el repositorio, así que
+    # cualquiera puede falsificar una sesión en un despliegue real.
+    app.secret_key = app.config.get("SECRET_KEY") or "postventa-web-dev"
 
     if Config.REPO_BACKEND == "sqlalchemy" and Config.AUTO_CREATE_TABLES:
         from src.shared.db import crear_tablas
