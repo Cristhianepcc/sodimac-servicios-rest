@@ -30,6 +30,7 @@ def _serializar(i: IniciativaRSE) -> dict:
         "presupuestoAprobado": i.presupuesto_aprobado,
         "estado": i.estado.value,
         "aprobada": i.aprobada,
+        "comentarioEvaluacion": i.comentario_evaluacion,
         "indicadores": [
             {
                 "nombre": k.nombre,

@@ -95,7 +95,7 @@ class ConsumidorRabbitMQ(ConsumidorEventos):
     def _procesar(self, cola: str, canal, metodo, _propiedades, cuerpo: bytes) -> None:
         try:
             evento = EventoIntegracion.desde_json(cuerpo)
-        except (ValueError, UnicodeDecodeError):
+        except ValueError:  # UnicodeDecodeError deriva de ValueError
             # Mensaje ilegible: descartar sin reencolar (evita bucle infinito).
             log.exception("Mensaje no parseable en '%s'; se descarta", cola)
             canal.basic_nack(delivery_tag=metodo.delivery_tag, requeue=False)
