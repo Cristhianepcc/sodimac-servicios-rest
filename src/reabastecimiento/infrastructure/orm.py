@@ -40,3 +40,12 @@ class LineaOCORM(Base):
     cantidad: Mapped[int] = mapped_column(Integer, nullable=False)
     precio_unitario: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     orden: Mapped[OrdenCompraORM] = relationship(back_populates="lineas")
+
+
+class UbicacionORM(Base):
+    __tablename__ = "reabastecimiento_ubicacion"
+
+    codigo: Mapped[str] = mapped_column(String(20), primary_key=True)
+    zona: Mapped[str] = mapped_column(String(40), nullable=False)
+    sku: Mapped[str] = mapped_column(String(40), nullable=False)
+    cantidad: Mapped[int] = mapped_column(Integer, nullable=False, default=0)

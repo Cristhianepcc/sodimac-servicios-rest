@@ -9,9 +9,11 @@ from __future__ import annotations
 from config import Config
 from src.reabastecimiento.domain.inventario import IProductoRepositorio
 from src.reabastecimiento.domain.ordenes_compra import IOrdenCompraRepositorio
+from src.reabastecimiento.domain.ubicacion import IUbicacionRepositorio
 
 _repo_inventario: IProductoRepositorio | None = None
 _repo_ordenes_compra: IOrdenCompraRepositorio | None = None
+_repo_almacen: IUbicacionRepositorio | None = None
 
 
 def get_inventario_repositorio() -> IProductoRepositorio:
@@ -40,3 +42,17 @@ def get_ordenes_compra_repositorio() -> IOrdenCompraRepositorio:
 
             _repo_ordenes_compra = OrdenCompraRepositorioMemoria()
     return _repo_ordenes_compra
+
+
+def get_almacen_repositorio() -> IUbicacionRepositorio:
+    global _repo_almacen
+    if _repo_almacen is None:
+        if Config.REPO_BACKEND == "sqlalchemy":
+            from .almacen_sqlalchemy import UbicacionRepositorioSQLAlchemy
+
+            _repo_almacen = UbicacionRepositorioSQLAlchemy()
+        else:
+            from .almacen_memoria import UbicacionRepositorioMemoria
+
+            _repo_almacen = UbicacionRepositorioMemoria()
+    return _repo_almacen
