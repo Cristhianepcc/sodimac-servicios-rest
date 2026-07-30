@@ -1,49 +1,97 @@
-# Guía de flujo — Postventa y Experiencia · Integrante 6
+# Postventa y Experiencia del Cliente
 
-> Rama: `feat/postventa`. El servicio **Reclamo** ya está implementado como referencia
-> (4 capas). Completa el resto del proceso de postventa.
+**Responsable:** Erick Pérez
 
-## Contexto del proceso
-Postventa (Práctica 4 §5.6): `registrar caso → validar garantía → evaluar producto →
-determinar solución → cerrar caso → notificar`.
+## Descripción
 
-## Qué implementar (endpoints)
+El módulo de Postventa permite gestionar el ciclo completo de atención de reclamos de clientes.
 
-| Estado | Método | Endpoint | Operación |
-| --- | --- | --- | --- |
-| ✅ hecho | POST | `/api/reclamos` | Registrar reclamo |
-| ✅ hecho | GET | `/api/reclamos/<id>` | Consultar reclamo |
-| ⬜ | PUT | `/api/reclamos/<id>` | Actualizar reclamo |
-| ⬜ | POST | `/api/validaciones/verificar` | Validar requisitos de garantía |
-| ⬜ | POST | `/api/evaluaciones` | Registrar evaluación técnica |
-| ⬜ | POST | `/api/soluciones` | Registrar solución (reembolso/cambio/reparación) |
-| ⬜ | POST | `/api/casos/cerrar` | Cerrar caso |
-| ⬜ | POST | `/api/notificaciones` | Enviar notificación al cliente |
+El flujo implementado es:
 
-## Entidades de dominio sugeridas
-- **Validacion**: `reclamo_id`, `cumple_garantia` (bool), `motivo`.
-- **EvaluacionTecnica**: `reclamo_id`, `diagnostico`, `procede` (bool).
-- **Solucion**: `reclamo_id`, `tipo {REEMBOLSO, CAMBIO, REPARACION}`, `aprobada` (bool).
-- **Caso**: `reclamo_id`, `estado {ABIERTO, CERRADO}`.
-- **Notificacion**: `cliente`, `mensaje`, `estado {ENVIADA}`.
+Registrar Reclamo
+→ Validar Garantía
+→ Evaluar Producto
+→ Determinar Solución
+→ Notificar Cliente
+→ Cerrar Caso
 
-## Pasos (por capa) — por cada servicio
-1. **Dominio**: `domain/validacion.py`, `domain/evaluacion.py`, `domain/solucion.py`, etc.
-2. **Infraestructura**: repos memoria + ORM + SQLAlchemy + providers.
-3. Registra los ORM en `src/shared/db.py::crear_tablas`.
-4. **Aplicación**: un servicio por área.
-5. **Presentación**: nuevos `*_controller.py` con su `bp` (se autoregistran).
-6. **Prueba BDD** en Postman (carpeta "Postventa").
+Para simplificar la persistencia se decidió centralizar toda la información del proceso en una única entidad denominada `Reclamo`.
 
-> Nota: la Práctica 4 menciona RabbitMQ para notificaciones asíncronas. Para el Lab 7
-> basta el endpoint REST **síncrono** (`POST /api/notificaciones` que guarda y responde 201).
-> La mensajería asíncrona queda fuera de alcance.
+---
 
-## Criterio de aceptación (BDD ejemplo — Validar garantía)
-- **GIVEN** un reclamo registrado.
-- **WHEN** `POST /api/validaciones/verificar` con `{ "reclamoId": "...", "cumpleGarantia": true }`.
-- **THEN** `201` y el reclamo pasa a `EN_EVALUACION`; **AND** si no cumple → solución no procede.
+## Dominio
 
-## Referencia
-Servicio **Reclamo** (4 capas): `domain/reclamo.py`, `infrastructure/reclamo_*`,
-`application/reclamo_servicio.py`, `presentation/reclamo_controller.py`.
+### Entidad Principal: Reclamo
+
+Campos:
+
+- id
+- cliente
+- dni
+- email
+- telefono
+- producto
+- motivo
+- estado
+- cumpleGarantia
+- motivoValidacion
+- diagnostico
+- procedeEvaluacion
+- tipoSolucion
+- mensajeCliente
+- fechaCierre
+- fechaNotificacion
+
+Estados posibles:
+
+- REGISTRADO
+- EN_EVALUACION
+- RESUELTO
+- RECHAZADO
+
+---
+
+## Arquitectura
+
+El módulo sigue una arquitectura en capas:
+
+- Dominio
+- Aplicación
+- Infraestructura
+- Presentación
+
+Estructura:
+
+src/postventa/
+
+├── domain/
+├── application/
+├── infrastructure/
+└── presentation/
+
+---
+
+## Flujo del Proceso
+
+1. Cliente registra un reclamo.
+2. Postventa valida la garantía.
+3. Técnico registra la evaluación.
+4. Técnico define la solución.
+5. Se envía una notificación al cliente.
+6. El caso se marca como resuelto.
+
+---
+
+## Servicios REST
+| Método | Endpoint | Descripción |
+|----------|----------|----------|
+| POST | /api/reclamos | Registrar reclamo |
+| GET | /api/reclamos | Listar reclamos |
+| GET | /api/reclamos/{id} | Consultar reclamo |
+| PUT | /api/reclamos/{id} | Actualizar reclamo |
+| PATCH | /api/reclamos/{id}/garantia | Validar garantía |
+| GET | /api/evaluaciones | Reclamos pendientes de evaluación |
+| PATCH | /api/reclamos/{id}/evaluacion | Registrar evaluación |
+| GET | /api/soluciones | Reclamos pendientes de solución |
+| PATCH | /api/reclamos/{id}/solucion | Registrar solución |
+| POST | /api/reclamos/{id}/notificacion | Notificar cliente |
