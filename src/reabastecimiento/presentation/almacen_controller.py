@@ -1,38 +1,59 @@
-"""STUB — Servicio de Almacén (Reabastecimiento). Responsable: Integrante 5a.
-
-Endpoints a implementar (Práctica 4 §5.1):
-    POST /api/almacenes/ubicaciones       → registrar ubicación
-    POST /api/almacenes/mercaderia        → ubicar mercadería
-    GET  /api/almacenes/ubicaciones/<sku> → consultar ubicación
-    PUT  /api/almacenes/inventario        → actualizar inventario en CD
-"""
+"""Controlador REST del servicio de Almacén (Reabastecimiento)."""
 from __future__ import annotations
 
-from flask import Blueprint
+from flask import Blueprint, jsonify, request
 
-from src.shared.stub import no_implementado
+from src.reabastecimiento.application.almacen_servicio import AlmacenServicio
+from src.reabastecimiento.domain.ubicacion import Ubicacion
 
 bp = Blueprint("reabastecimiento_almacen", __name__, url_prefix="/api/almacenes")
 
-_SVC = "Almacén"
-_INT = "Integrante 5"
+
+def _serializar(ubicacion: Ubicacion) -> dict:
+    return {
+        "codigo": ubicacion.codigo,
+        "zona": ubicacion.zona,
+        "sku": ubicacion.sku,
+        "cantidad": ubicacion.cantidad,
+        "stock": ubicacion.cantidad,
+    }
 
 
 @bp.post("/ubicaciones")
 def registrar_ubicacion():
-    return no_implementado(_SVC, _INT)
+    datos = request.get_json(silent=True) or {}
+    ubicacion = AlmacenServicio().registrar_ubicacion(
+        codigo=datos.get("codigo", ""),
+        zona=datos.get("zona", ""),
+        sku=datos.get("sku", ""),
+        cantidad=int(datos.get("cantidad", 0)),
+    )
+    return jsonify(_serializar(ubicacion)), 201
 
 
 @bp.post("/mercaderia")
 def ubicar_mercaderia():
-    return no_implementado(_SVC, _INT)
+    datos = request.get_json(silent=True) or {}
+    ubicacion = AlmacenServicio().ubicar_mercaderia(
+        codigo=datos.get("codigo", ""),
+        zona=datos.get("zona", ""),
+        sku=datos.get("sku", ""),
+        cantidad=int(datos.get("cantidad", 0)),
+    )
+    return jsonify(_serializar(ubicacion)), 200
 
 
 @bp.get("/ubicaciones/<sku>")
 def consultar_ubicacion(sku: str):
-    return no_implementado(_SVC, _INT)
+    ubicacion = AlmacenServicio().consultar_ubicacion(sku)
+    return jsonify(_serializar(ubicacion)), 200
 
 
 @bp.put("/inventario")
 def actualizar_inventario_cd():
-    return no_implementado(_SVC, _INT)
+    datos = request.get_json(silent=True) or {}
+    ubicacion = AlmacenServicio().actualizar_inventario(
+        sku=datos.get("sku", ""),
+        stock=int(datos.get("stock", 0)),
+    )
+    return jsonify(_serializar(ubicacion)), 200
