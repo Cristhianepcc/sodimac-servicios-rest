@@ -34,8 +34,8 @@ class Proveedor:
         self.estado = EstadoProveedor.EVALUADO
 
     def aprobar(self) -> None:
-        if self.estado != EstadoProveedor.EVALUADO:
-            raise ErrorDominio("Solo se puede aprobar un proveedor evaluado.")
+        if self.estado not in (EstadoProveedor.EVALUADO, EstadoProveedor.RECHAZADO):
+            raise ErrorDominio("Solo se puede aprobar un proveedor evaluado o rechazado.")
         if self.puntaje < 70:
             raise ErrorDominio("El puntaje debe ser >= 70 para aprobar.")
         self.estado = EstadoProveedor.APROBADO

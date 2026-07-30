@@ -1,0 +1,48 @@
+{% extends "dashboard.html" %}
+{% block title %}Almacen - Reabastecimiento{% endblock %}
+{% block menu %}
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.proveedores') }}">Proveedores</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.ordenes_compra') }}">Ordenes de Compra</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.recepciones') }}">Recepciones</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.distribucion') }}">Distribucion</a>
+<a class="nav-link active" href="{{ url_for('reabastecimiento_web.almacen') }}">Almacen</a>
+<a class="nav-link" href="{{ url_for('reabastecimiento_web.auditorias') }}">Auditorias</a>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Almacen</h1>
+  <div>
+    <button class="btn btn-outline-primary btn-sm" id="btn-ubicaciones">Ubicaciones</button>
+    <button class="btn btn-primary btn-sm" id="btn-mercaderia">Mercaderia</button>
+  </div>
+</div>
+<div id="alerta" class="alert d-none"></div>
+<div id="vista-ubicaciones" class="table-responsive">
+  <h3 class="h5 mb-3">Ubicaciones</h3>
+  <button class="btn btn-outline-primary btn-sm mb-3" id="btn-nueva-ubicacion">Nueva Ubicacion</button>
+  <table class="table align-middle">
+    <thead><tr><th>Codigo</th><th>Pasillo</th><th>Estante</th><th>Nivel</th></tr></thead>
+    <tbody id="ubicaciones"></tbody>
+  </table>
+</div>
+<div id="vista-mercaderia" class="table-responsive d-none">
+  <h3 class="h5 mb-3">Mercaderia</h3>
+  <button class="btn btn-outline-primary btn-sm mb-3" id="btn-nueva-mercaderia">Ubicar Mercaderia</button>
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <input class="form-control" id="buscar-sku" placeholder="Buscar por SKU...">
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-outline-secondary btn-sm" id="btn-buscar-sku">Buscar</button>
+    </div>
+  </div>
+  <table class="table align-middle">
+    <thead><tr><th>ID</th><th>SKU</th><th>Ubicacion</th><th>Cantidad</th><th>Fecha</th></tr></thead>
+    <tbody id="mercaderia"></tbody>
+  </table>
+</div>
+<section id="detalle" class="detail-panel d-none"></section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/reabastecimiento.js') }}"></script>
+{% endblock %}

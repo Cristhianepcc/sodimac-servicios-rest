@@ -85,6 +85,21 @@ class TestEvaluar:
         with pytest.raises(ErrorDominio):
             prov.evaluar(101)
 
+    def test_reevaluar_cambia_puntaje(self):
+        prov = _proveedor()
+        prov.evaluar(50)
+        prov.evaluar(90)
+        assert prov.puntaje == 90
+        assert prov.estado is EstadoProveedor.EVALUADO
+
+    def test_reevaluar_desde_rechazado(self):
+        prov = _proveedor()
+        prov.evaluar(40)
+        prov.rechazar()
+        prov.evaluar(85)
+        assert prov.puntaje == 85
+        assert prov.estado is EstadoProveedor.EVALUADO
+
 
 # --- Aprobar ----------------------------------------------------------------
 
@@ -118,6 +133,14 @@ class TestAprobar:
         prov.aprobar()
         with pytest.raises(ErrorDominio):
             prov.aprobar()
+
+    def test_aprobar_desde_rechazado(self):
+        prov = _proveedor()
+        prov.evaluar(80)
+        prov.rechazar()
+        assert prov.estado is EstadoProveedor.RECHAZADO
+        prov.aprobar()
+        assert prov.estado is EstadoProveedor.APROBADO
 
 
 # --- Rechazar ---------------------------------------------------------------
