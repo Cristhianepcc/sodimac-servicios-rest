@@ -37,6 +37,7 @@ def _a_dominio(row: IniciativaRSEORM) -> IniciativaRSE:
         estado=EstadoIniciativa(row.estado),
         aprobada=row.aprobada,
         metas_cumplidas=row.metas_cumplidas,
+        comentario_evaluacion=row.comentario_evaluacion,
     )
     ini.indicadores = [
         IndicadorKPI(i.nombre, i.unidad, i.valor_linea_base, i.valor_actual, i.meta)
@@ -107,6 +108,7 @@ def _volcar_escalares(row: IniciativaRSEORM, ini: IniciativaRSE) -> None:
     row.estado = ini.estado.value
     row.aprobada = ini.aprobada
     row.metas_cumplidas = ini.metas_cumplidas
+    row.comentario_evaluacion = ini.comentario_evaluacion
 
 
 class IniciativaRepositorioSQLAlchemy(IIniciativaRepositorio):

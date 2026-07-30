@@ -83,6 +83,7 @@ class IniciativaRSE:
     estado: EstadoIniciativa = EstadoIniciativa.FORMULADA
     aprobada: bool = False
     metas_cumplidas: bool = False
+    comentario_evaluacion: str = ""
     indicadores: list[IndicadorKPI] = field(default_factory=list)
     evidencias: list[EvidenciaAvance] = field(default_factory=list)
     acciones: list[AccionCorrectiva] = field(default_factory=list)
@@ -97,6 +98,7 @@ class IniciativaRSE:
         """
         if aprobada and presupuesto_aprobado <= 0:
             raise ErrorDominio("Una iniciativa aprobada requiere un presupuesto mayor que 0.")
+        self.comentario_evaluacion = comentario
         self.aprobada = aprobada
         self.presupuesto_aprobado = presupuesto_aprobado if aprobada else 0.0
         self.estado = EstadoIniciativa.APROBADA if aprobada else EstadoIniciativa.ARCHIVADA

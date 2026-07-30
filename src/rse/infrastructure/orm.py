@@ -11,6 +11,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.shared.db import Base
 
+#: Cascada de composicion: los hijos no existen fuera del agregado, asi que
+#: borrar la raiz debe borrarlos tambien (delete-orphan).
+_CASCADA_COMPOSICION = "all, delete-orphan"
+
+#: Clave foranea hacia la raiz del agregado.
+_FK_INICIATIVA = "rse_iniciativa.codigo"
+
 
 class IniciativaRSEORM(Base):
     __tablename__ = "rse_iniciativa"
@@ -25,18 +32,19 @@ class IniciativaRSEORM(Base):
     estado: Mapped[str] = mapped_column(String(20), nullable=False, default="FORMULADA")
     aprobada: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     metas_cumplidas: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    comentario_evaluacion: Mapped[str] = mapped_column(String(500), nullable=False, default="")
 
     indicadores: Mapped[list["IndicadorKPIORM"]] = relationship(
-        back_populates="iniciativa", cascade="all, delete-orphan", lazy="selectin"
+        back_populates="iniciativa", cascade=_CASCADA_COMPOSICION, lazy="selectin"
     )
     evidencias: Mapped[list["EvidenciaAvanceORM"]] = relationship(
-        back_populates="iniciativa", cascade="all, delete-orphan", lazy="selectin"
+        back_populates="iniciativa", cascade=_CASCADA_COMPOSICION, lazy="selectin"
     )
     acciones: Mapped[list["AccionCorrectivaORM"]] = relationship(
-        back_populates="iniciativa", cascade="all, delete-orphan", lazy="selectin"
+        back_populates="iniciativa", cascade=_CASCADA_COMPOSICION, lazy="selectin"
     )
     reporte: Mapped["ReporteSostenibilidadORM"] = relationship(
-        back_populates="iniciativa", cascade="all, delete-orphan", uselist=False, lazy="selectin"
+        back_populates="iniciativa", cascade=_CASCADA_COMPOSICION, uselist=False, lazy="selectin"
     )
 
 
@@ -44,7 +52,7 @@ class IndicadorKPIORM(Base):
     __tablename__ = "rse_indicador_kpi"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    iniciativa_codigo: Mapped[str] = mapped_column(ForeignKey("rse_iniciativa.codigo"))
+    iniciativa_codigo: Mapped[str] = mapped_column(ForeignKey(_FK_INICIATIVA))
     nombre: Mapped[str] = mapped_column(String(120), nullable=False)
     unidad: Mapped[str] = mapped_column(String(40), nullable=False, default="")
     valor_linea_base: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
@@ -58,7 +66,7 @@ class EvidenciaAvanceORM(Base):
     __tablename__ = "rse_evidencia_avance"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    iniciativa_codigo: Mapped[str] = mapped_column(ForeignKey("rse_iniciativa.codigo"))
+    iniciativa_codigo: Mapped[str] = mapped_column(ForeignKey(_FK_INICIATIVA))
     fecha: Mapped["Date"] = mapped_column(Date, nullable=False)
     descripcion: Mapped[str] = mapped_column(String(300), nullable=False, default="")
     porcentaje_avance: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
@@ -71,7 +79,7 @@ class AccionCorrectivaORM(Base):
     __tablename__ = "rse_accion_correctiva"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    iniciativa_codigo: Mapped[str] = mapped_column(ForeignKey("rse_iniciativa.codigo"))
+    iniciativa_codigo: Mapped[str] = mapped_column(ForeignKey(_FK_INICIATIVA))
     descripcion: Mapped[str] = mapped_column(String(300), nullable=False, default="")
     responsable: Mapped[str] = mapped_column(String(120), nullable=False, default="")
     fecha: Mapped["Date"] = mapped_column(Date, nullable=False)
@@ -83,7 +91,7 @@ class ReporteSostenibilidadORM(Base):
     __tablename__ = "rse_reporte_sostenibilidad"
 
     codigo: Mapped[str] = mapped_column(String(20), primary_key=True)
-    iniciativa_codigo: Mapped[str] = mapped_column(ForeignKey("rse_iniciativa.codigo"))
+    iniciativa_codigo: Mapped[str] = mapped_column(ForeignKey(_FK_INICIATIVA))
     fecha_generacion: Mapped["Date"] = mapped_column(Date, nullable=False)
     resumen: Mapped[str] = mapped_column(String(500), nullable=False, default="")
     url_publicacion: Mapped[str] = mapped_column(String(300), nullable=False, default="")
